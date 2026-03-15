@@ -1,4 +1,46 @@
-# pyinstaller --noconsole --onefile --icon=pyramid.ico pyramid.py
+# Pyramid API Management
+# A desktop tool for querying and exporting data from Genesys Cloud
+# via the PureCloudPlatformClientV2 SDK.
+#
+# Author:     Ighor Toth <toth@ighor.com>
+# Website:    https://ighor.com
+# Repository: https://github.com/igtoth/pyramid
+# License:    MIT License — see LICENSE file
+# Version:    2.1.2
+# 
+# Copyright (c) 2024-2025 Ighor Toth
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject
+# to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+# See LICENSE for full terms.
+#
+# This is NOT a Genesys product. Use at your own risk.
+#
+# Build: pyinstaller --noconsole --onefile --icon=pyramid.ico pyramid.py
+#        or: nuitka (see scripts/build.bat)
+#
+# Changelog:
+#   v1.0.0  (2024-04-12)  Initial version
+#   v1.1.0  (2024-03-27)  Added all users with queues
+#   v1.1.1  (2024-04-03)  Added all external contacts
+#   v1.1.2  (2024-08-03)  Added Save JSON, Edges, Settings
+#   v2.0.0  (2024)        Token caching, 13 new API methods, search bar,
+#                          right-click copy, keyboard shortcuts, retry/backoff
+#   v2.1.0  (2025)        Visual redesign, proxy config, removed branding
+#   v2.1.1  (2025)        Dark/Light theme toggle, responsive grid, cache
+#   v2.1.2  (2025)        53 API methods, portable configparser, Terms of Use,
+#                          Help tab, Nuitka build, no winreg dependency
+#
 
 # ── Standard library ──────────────────────────────────────────────────────────
 from importlib.metadata import version, PackageNotFoundError
@@ -20,31 +62,6 @@ import logging
 from PIL import Image, ImageTk, ImageDraw
 import PureCloudPlatformClientV2
 from PureCloudPlatformClientV2.rest import ApiException
-
-"""
-Pyramid API Management
-=========================
-A desktop tool for querying and exporting data from Genesys Cloud via the
-PureCloudPlatformClientV2 SDK.
-
-Change log:
-- v1.0.0 (12/04/2024): Initial version
-- v1.1.0 (03/27/2024): Added all users with queues
-- v1.1.1 (04/03/2024): Added all external contacts
-- v1.1.2 (08/03/2024): Added Save JSON, Edges, Settings
-- v2.0.0: Bug fixes, token caching, 13 new API methods, search bar,
-          right-click copy, keyboard shortcuts, retry/backoff
-- v2.1.1 (Current):
-    • Dark / Light theme toggle in About tab (persisted in registry)
-    • Restart to apply theme change
-- v2.1.0:
-    • Removed all company-specific branding
-    • Full visual redesign: dark corporate theme, custom ttk.Style,
-      button hover effects, coloured section badges, animated status bar,
-      consistent typography with Segoe UI / Helvetica
-    • Proxy URL now user-configurable (stored in registry)
-    • Configurable proxy label (no hardcoded company name)
-"""
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
