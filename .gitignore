@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets
+.env
+secrets.json
+
+# Build / dist
+build/
+dist/
+*.egg-info/
+*.egg
+
+# PyInstaller (keep build.spec, ignore generated ones)
+*.manifest
+*.spec
+!scripts/build.spec
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# App config (user data — never commit)
+pyramid.cfg
+
+# Exports
+exports/
+*.csv
+*.json
+!docs/**/*.json
+
+# Nuitka build output
+*.build/
+*.dist/
+pyramid.exe
+*.pyi

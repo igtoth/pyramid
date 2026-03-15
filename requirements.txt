@@ -1,0 +1,2 @@
+PureCloudPlatformClientV2>=197.0.0
+Pillow>=10.0.0
