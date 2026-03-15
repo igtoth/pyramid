@@ -12,6 +12,14 @@ Built with Python + Tkinter. Runs on Windows and any OS with Python 3.9+.
 
 ---
 
+## Screenshots
+
+| Main view — 53 API methods across 12 sections | User details — double-click drill-down |
+|:---:|:---:|
+| ![Main view](docs/screenshots/main-view.png) | ![User details](docs/screenshots/user-details.png) |
+
+---
+
 ## Features
 
 - 🔐 **Credential manager** — stored in `%APPDATA%/Pyramid/pyramid.cfg` (no registry, portable)
