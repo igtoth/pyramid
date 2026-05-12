@@ -14,7 +14,7 @@ Built with Python + Tkinter. Runs on Windows and any OS with Python 3.9+.
 
 ## Screenshots
 
-| Main view — 53 API methods across 12 sections | User details — double-click drill-down |
+| Main view - 53 API methods across 12 sections | User details - double-click drill-down |
 |:---:|:---:|
 | ![Main view](docs/screenshots/main-view.png) | ![User details](docs/screenshots/user-details.png) |
 
@@ -22,19 +22,19 @@ Built with Python + Tkinter. Runs on Windows and any OS with Python 3.9+.
 
 ## Features
 
-- 🔐 **Credential manager** — stored in `%APPDATA%/Pyramid/pyramid.cfg` (no registry, portable)
+- 🔐 **Credential manager** - stored in `%APPDATA%/Pyramid/pyramid.cfg` (no registry, portable)
 - 📋 **53 API methods** across 12 sections
-- ⚡ **In-memory cache** — results reused across navigations; per-client keying
-- 🔄 **Refresh on demand** — force new API call from any result page
-- 🔍 **Search / filter** — live filter on all result tables
-- ↕️ **Sortable columns** — click any column header
+- ⚡ **In-memory cache** - results reused across navigations; per-client keying
+- 🔄 **Refresh on demand** - force new API call from any result page
+- 🔍 **Search / filter** - live filter on all result tables
+- ↕️ **Sortable columns** - click any column header
 - 📤 **Export CSV / JSON**
 - 🖱️ **Right-click → Copy cell value**
 - ⌨️ **Keyboard shortcuts**: `[Esc]` back, `[Ctrl+S]` save CSV
-- 📐 **Responsive card grid** — reflows 1→2→3 columns as window resizes
-- 🌗 **Light / Dark theme toggle** — persisted in config
-- 🌐 **Proxy support** — configurable proxy URL
-- 📜 **Terms of Use dialog** — first-run legal agreement with MIT license, data privacy and authorized-use disclaimers
+- 📐 **Responsive card grid** - reflows 1→2→3 columns as window resizes
+- 🌗 **Light / Dark theme toggle** - persisted in config
+- 🌐 **Proxy support** - configurable proxy URL
+- 📜 **Terms of Use dialog** - first-run legal agreement with MIT license, data privacy and authorized-use disclaimers
 - 🧱 **Animated Sieve of Eratosthenes** pyramid logo in the About tab
 
 ---
@@ -66,7 +66,7 @@ Built with Python + Tkinter. Runs on Windows and any OS with Python 3.9+.
 | PureCloudPlatformClientV2 | ≥ 197.0.0 |
 | Pillow | ≥ 10.0.0 |
 
-> No longer requires `winreg` — runs on Windows, Linux and macOS.
+> No longer requires `winreg` - runs on Windows, Linux and macOS.
 
 ---
 
@@ -101,7 +101,7 @@ See [`scripts/README_build.md`](scripts/README_build.md) for detailed build inst
 
 ### Why Nuitka instead of PyInstaller?
 
-Nuitka compiles Python to native C — no bootloader, no `%TEMP%` extraction.
+Nuitka compiles Python to native C - no bootloader, no `%TEMP%` extraction.
 This means **no false positives from antivirus** engines that flag PyInstaller's
 packaging technique as suspicious.
 
@@ -156,11 +156,11 @@ The config file stores:
 
 ## Usage
 
-1. **First run** — accept the Terms of Use dialog.
-2. **Add credentials** — go to the **OAuth** tab, fill in Name, Region, Client ID and Secret, click Save.
-3. **Test connection** — click Test to verify the credentials work.
-4. **Browse data** — switch to the **Main** tab, click any API method button.
-5. **Export** — use the CSV or JSON export buttons, or press `Ctrl+S`.
+1. **First run** - accept the Terms of Use dialog.
+2. **Add credentials** - go to the **OAuth** tab, fill in Name, Region, Client ID and Secret, click Save.
+3. **Test connection** - click Test to verify the credentials work.
+4. **Browse data** - switch to the **Main** tab, click any API method button.
+5. **Export** - use the CSV or JSON export buttons, or press `Ctrl+S`.
 
 ### Genesys Cloud OAuth Setup
 
@@ -175,14 +175,14 @@ You need a **Client Credentials** grant type OAuth client in your Genesys Cloud 
 
 ## What Pyramid Does
 
-### 📦 Full pagination — no record limits
-Pyramid paginates the API automatically and fetches every record regardless of org size — users, queues, contacts, roles and more. Results are only limited by what the API returns.
+### 📦 Full pagination - no record limits
+Pyramid paginates the API automatically and fetches every record regardless of org size - users, queues, contacts, roles and more. Results are only limited by what the API returns.
 
 ### 💾 Saves directly to your filesystem
 Exports are saved as CSV or JSON directly to any folder you choose. No size limits, no expiry, no inbox required.
 
 ### 🔗 Users + Queues in one export
-Export a flat table of all users and all their queue memberships in a single CSV — one row per user, queues as a comma-separated column. Ready for Excel, Power BI or any reporting tool.
+Export a flat table of all users and all their queue memberships in a single CSV - one row per user, queues as a comma-separated column. Ready for Excel, Power BI or any reporting tool.
 
 ### ⚙ Config objects: IVRs, Flows, Schedules and more
 Pyramid exports configuration objects not easily available through standard workflows:
@@ -191,11 +191,11 @@ IVR Configurations (DNIS → Flow mappings), Architect Flows metadata, Schedules
 ### 🏢 Multiple orgs, one tool
 Store credentials for as many orgs as you need and switch between them with a single click. Each org's data is cached independently in memory.
 
-### ⚡ In-memory cache — instant re-open
-Once a dataset is fetched, clicking the same button again opens it instantly from memory — no new API call. Use 🔄 Refresh only when you need fresh data.
+### ⚡ In-memory cache - instant re-open
+Once a dataset is fetched, clicking the same button again opens it instantly from memory - no new API call. Use 🔄 Refresh only when you need fresh data.
 
 ### 📋 Raw JSON export
-Every query can be exported as the raw API JSON response — useful for migration scripting, debugging, or feeding data into other tools.
+Every query can be exported as the raw API JSON response - useful for migration scripting, debugging, or feeding data into other tools.
 
 ### 🎯 Built for migrations & audits
 Pyramid is purpose-built for getting a complete snapshot of an org's configuration at any point in time.
@@ -232,6 +232,7 @@ pytest tests/ -v
 
 **Ighor Toth**
 - Email: [toth@ighor.com](mailto:toth@ighor.com)
+- Email: [igtoth@gmail.com](mailto:igtoth@gmail.com)
 - Website: [ighor.com](https://ighor.com)
 
 ---
