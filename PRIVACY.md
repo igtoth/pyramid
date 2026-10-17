@@ -10,9 +10,11 @@ Only Genesys Cloud, and only when you ask for a report or test a connection:
 - `login.<region>` to get an access token;
 - `api.<region>` for the reports (GET requests only).
 
-The web version is served by GitHub Pages, which sees that you loaded the page
-(see GitHub's privacy statement). The page itself only connects to Genesys
-Cloud; its Content Security Policy blocks every other host.
+The live demo (igtoth.github.io/pyramid) is served by GitHub Pages, which sees
+that you loaded the page (see GitHub's privacy statement). The demo connects to
+nothing: its data is made up and ships with the page, and its Content Security
+Policy blocks every other host. A self-hosted copy of the page only connects to
+Genesys Cloud.
 
 ## What it stores
 

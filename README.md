@@ -20,7 +20,7 @@
 
 <p align="center">
   <a href="https://github.com/igtoth/pyramid/releases/latest"><b>Download</b></a> &middot;
-  <a href="https://igtoth.github.io/pyramid/">Open it in the browser</a> &middot;
+  <a href="https://igtoth.github.io/pyramid/">Live demo</a> &middot;
   <a href="#why-pyramid">Why Pyramid</a> &middot;
   <a href="CONTRIBUTING.md">Contribute</a>
 </p>
@@ -143,7 +143,7 @@ open every report as an end-to-end test.
       <br>
       <sub>The same reports in the browser.</sub>
       <h3>In the browser too</h3>
-      <a href="https://igtoth.github.io/pyramid/">igtoth.github.io/pyramid</a> signs you in with your Genesys Cloud account (OAuth PKCE, no secret) and talks to the API straight from your browser. Or run <code>pyramid web</code> to use Client Credentials clients (with secret) in the same page.
+      Try the <a href="https://igtoth.github.io/pyramid/">live demo</a> (a made-up org, no connection to anything), then run <code>pyramid web</code> to get the same page on your computer with your own org.
     </td>
   </tr>
   <tr>
@@ -209,7 +209,7 @@ Genesys Cloud API definition.
 <table>
   <tr>
     <td width="50%" valign="top">
-      <img src="docs/images/pyramid-web-signin-dark.jpg" alt="The web version's sign-in page in the dark theme: region, OAuth client ID, and the steps for the admin to create the PKCE client" width="100%">
+      <img src="docs/images/pyramid-web-demo.jpg" alt="The live demo: a DEMO banner on top, Trunks of the made-up org open in a tab" width="100%">
     </td>
     <td width="50%" valign="top">
       <img src="docs/images/pyramid-web-ivrs-dark.jpg" alt="The web version signed in, with IVR Configurations and Organization Settings open in tabs" width="100%">
@@ -217,31 +217,32 @@ Genesys Cloud API definition.
   </tr>
 </table>
 
-**[igtoth.github.io/pyramid](https://igtoth.github.io/pyramid/)**, nothing to install. An admin creates one OAuth client for the org, once:
+**[Live demo: igtoth.github.io/pyramid](https://igtoth.github.io/pyramid/)**,
+nothing to install. The demo runs the real page against a made-up org
+(*Lumen Harbor Telecom*) answered inside the page: sign in with any client,
+open the 53 reports, search, sort, export. It does not connect to Genesys
+Cloud or to anything else (its Content Security Policy only allows its own
+files), and a banner says so.
 
-1. Admin › Integrations › OAuth › Add client.
-2. Grant type: **Code Authorization with PKCE** (no secret). Genesys stopped offering the implicit grant for new clients in May 2026; PKCE is its replacement for browser apps.
-3. Authorized redirect URI: `https://igtoth.github.io/pyramid/`
-4. Hand out the client ID. Everyone signs in with their own account and sees only what their own roles allow.
+**With your org**, run **`pyramid web`**: the same page on your computer, with
+the full OAuth tab of the desktop app. Add, edit, test and delete Client
+Credentials clients (name, region, client ID, secret) in the page; they are
+saved in the same `pyramid.cfg` as the desktop app. The Pyramid process gets
+the token and adds it to each request, and a saved secret is never sent back
+to the browser.
 
-Same tabs as the desktop app (Main, OAuth, Config, Log, Help, About). Add a
-client in the OAuth tab and sign in with your Genesys account (PKCE). A
-**Client secret** is not offered on this page: Genesys Cloud does not let a
-web page use the Client Credentials grant (its token endpoint sends no CORS
-headers for it), so for a secret use the desktop app or `pyramid web` below.
-**Nothing is stored on any server:** the page runs in your
-browser and talks only to Genesys Cloud; your clients stay in the tab's
-session, or in the browser when you tick *Remember*; *Forget everything*
-clears it all. Prefer to keep everything in your
-network? Serve the same files from your own host (the `web` job in
-[`build.yml`](.github/workflows/build.yml) shows the two folders it takes) and
-register that URL as the redirect URI.
+Why not a Client secret straight from a hosted page? Genesys Cloud does not
+let a web page use the Client Credentials grant (its token endpoint sends no
+CORS headers for it), so the token has to come from your computer.
 
-**`pyramid web`** serves the same page on your computer, with the full OAuth
-tab of the desktop app: add, edit, test and delete Client Credentials clients
-(name, region, client ID, secret) in the page. They are saved in the same
-`pyramid.cfg` as the desktop app; the Pyramid process gets the token and adds
-it to each request, and a saved secret is never sent back to the browser. More in [`docs/web.md`](docs/web.md).
+**Hosting it for your team?** Serve `src/pyramid/web/` plus `catalog.json`
+from your own host (the `web` job in [`build.yml`](.github/workflows/build.yml)
+shows the folders it takes): without the demo switch, the page signs people in
+with their own Genesys account (OAuth client with **Code Authorization with
+PKCE**, redirect URI = your page's address), and each one sees only what their
+roles allow. Nothing is stored on any server: clients stay in the browser tab
+(or the browser, with *Remember*), and *Forget everything* clears it all.
+More in [`docs/web.md`](docs/web.md).
 
 ## Made to be automated
 
@@ -315,7 +316,7 @@ to `main` also refreshes the **Nightly build** pre-release.
 | Windows (x64) | `pyramid-<version>-windows-x86_64-setup.exe` (installer, no admin rights needed), `pyramid-<version>-windows-x86_64-portable.zip` |
 | macOS (Apple silicon, Intel) | `pyramid-<version>-macos-arm64.dmg`, `pyramid-<version>-macos-x86_64.dmg` |
 | Linux (x86_64) | `pyramid-<version>-linux-x86_64.AppImage`, `pyramid-<version>-linux-x86_64.tar.gz` |
-| Web | no download: [open it in the browser](https://igtoth.github.io/pyramid/) |
+| Web | `pyramid web` (any of the above), or try the [live demo](https://igtoth.github.io/pyramid/) (made-up data) |
 | Python | `pip install git+https://github.com/igtoth/pyramid` |
 
 The downloads are not code-signed yet. Windows: if SmartScreen warns, More info › Run anyway.

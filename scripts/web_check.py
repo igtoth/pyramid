@@ -5,7 +5,8 @@ Genesys Cloud, in both modes; also captures the README pictures.
     python scripts/web_check.py docs/images
 
 1. local: 'pyramid web', clients added from the page (the proxy adds the token)
-2. hosted: the static site (as GitHub Pages serves it) with PKCE sign-in
+2. hosted: the static site (a self-hosted copy) with PKCE sign-in
+3. demo: the site as GitHub Pages publishes it (made-up org, no connection)
 """
 
 from __future__ import annotations
@@ -221,6 +222,47 @@ with sync_playwright() as p:
     expect(page.locator(".pane.details")).to_contain_text("pyramid web")
     print("hosted mode: saved orgs, PKCE sign-in and reports OK", flush=True)
     ss.shutdown()
+
+    # ── 3. demo (what GitHub Pages publishes) ───────────────────────────────
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from demo_site import make_demo  # noqa: E402
+    demo = build_site()
+    shutil.copy(ROOT / "src/pyramid/web/index.html", demo / "index.html")  # without the test CSP opening
+    (demo / "index.html").write_text(make_demo((demo / "index.html").read_text(encoding="utf-8")), encoding="utf-8")
+    ds, demo_url = static_server(demo.parent)
+    page = browser.new_page(viewport={"width": 1360, "height": 820})
+    watch(page)
+    origin = demo_url.split("/pyramid/")[0]
+    outside: list[str] = []
+    page.on("request", lambda r: None if r.url.startswith(origin) or r.url.startswith("data:") else outside.append(r.url))
+    page.goto(demo_url)
+    expect(page.locator("#demo-banner")).to_contain_text("does not connect to Genesys Cloud")
+    expect(page.locator("#client-label")).to_contain_text("Lumen Harbor Telecom", timeout=15000)
+    page.on("dialog", lambda d: d.accept())
+    open_report(page, "All Users + Queues")
+    expect(page.locator(".report:not([hidden]) .count")).to_have_text("64 records", timeout=60000)
+    page.locator(".subtabs .tab", has_text="Reports").click()
+    open_report(page, "Trunks")
+    page.screenshot(path=str(OUT / "pyramid-web-demo.jpg"), quality=88)
+    page.locator(".subtabs .tab", has_text="Reports").click()
+    open_report(page, "OAuth Clients")
+    assert "SHOULD-NEVER-APPEAR" not in page.content()
+    page.locator("[data-tab=oauth]").click()
+    expect(page.locator(".privacy.demo")).to_contain_text("nothing leaves this page")
+    page.get_by_role("button", name="New").click()
+    page.fill("#f-name", "My org")
+    page.fill("#f-client", "12345678-1234-4123-8123-123456789012")
+    page.fill("#f-secret", "anything")
+    page.get_by_role("button", name="Test connection").click()
+    expect(page.locator("#dialog")).to_contain_text("Connected to Lumen Harbor Telecom", timeout=10000)
+    page.keyboard.press("Escape")
+    page.get_by_role("button", name="Save and use").click()
+    expect(page.locator("#client-label")).to_contain_text("My org", timeout=10000)
+    page.locator("[data-tab=log]").click()
+    expect(page.locator("#log-lines")).to_contain_text("GET /api/v2/organizations/me")
+    assert not outside, f"the demo reached outside its origin: {outside}"
+    print("demo mode: made-up org, reports and OAuth tab OK, no outside request", flush=True)
+    ds.shutdown()
     browser.close()
 
 srv.shutdown()

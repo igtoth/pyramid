@@ -5,10 +5,13 @@
 //  - local ("pyramid web"): Client Credentials clients in pyramid.cfg, edited
 //    here as in the desktop app; the local server gets and adds the token,
 //    and never sends a saved secret back to the page.
+//  - demo (the published site, data-mode="demo"): a made-up org answered
+//    inside the page (demo.js); nothing is sent anywhere.
 import {
   API_HOSTS, Api, ApiError, Cancelled, cell, fetchReport, flattenObject, loginHost, normalizeCatalog,
   pkceChallenge, pkceVerifier, queueMembers, resolve, rowsOf, tableColumns, toCSV,
 } from "./core.js";
+import { DEMO_CLIENT, DEMO_TOKEN, demoApi, demoSignIn } from "./demo.js";
 
 const VERSION = "3.0.0";
 const REPO = "https://github.com/igtoth/pyramid";
@@ -126,6 +129,7 @@ async function init() {
   store.set("localStorage", "region", null);
   store.set("localStorage", "clientId", null);
 
+  if (document.documentElement.dataset.mode === "demo") return startDemo();
   // "pyramid web" marks the page it serves; the hosted page never asks
   const local = document.documentElement.dataset.mode === "local"
     ? await fetch("local/info", { credentials: "same-origin" }).then((r) => (r.ok ? r.json() : null)).catch(() => null)
@@ -195,7 +199,10 @@ function forgetEverything() {
   }
 }
 
-const PRIVACY = () => h("div", { class: "privacy" }, h("b", {}, "Nothing is stored on any server. "),
+const PRIVACY = () => S.mode === "demo"
+  ? h("div", { class: "privacy demo" }, h("b", {}, "Demo: nothing leaves this page. "),
+    "Any Name, Client ID and secret \"connect\" to a made-up org (Lumen Harbor Telecom) answered inside the page. Nothing is sent to Genesys Cloud or anywhere else, and nothing is saved.")
+  : h("div", { class: "privacy" }, h("b", {}, "Nothing is stored on any server. "),
   S.mode === "local"
     ? "Clients are saved in pyramid.cfg on this computer, the same file the desktop app uses. A secret you type goes to the Pyramid process once and is never sent back to the page; the process gets the token and adds it to each request."
     : "Pyramid has no server: this page runs in your browser and talks only to Genesys Cloud. The clients you add stay in this browser (this tab only, unless you tick Remember) and the token stays in this tab. Sign out or Forget everything (Config tab) clears it all.");
@@ -210,6 +217,23 @@ async function localPost(path, body) {
   if (!resp.ok) throw new Error(data.message || `HTTP ${resp.status}`);
   return data;
 }
+// demo: the same calls, answered in memory
+async function demoPost(path, body) {
+  if (path === "local/test") {
+    await demoSignIn();
+    return { org: "Lumen Harbor Telecom", region: body.region, expiresIn: 86399 };
+  }
+  if (path === "local/clients") {
+    const rest = S.localClients.filter((c) => c.name !== body.oldName && c.name !== body.name);
+    S.localClients = [...rest, { name: body.name, region: body.region, clientId: body.clientId, hasSecret: true }]
+      .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+  } else if (path === "local/clients/delete") {
+    S.localClients = S.localClients.filter((c) => c.name !== body.name);
+  }
+  return { clients: S.localClients };
+}
+const backendPost = (path, body) => (S.mode === "demo" ? demoPost(path, body) : localPost(path, body));
+
 function localOrgs() {
   return S.localClients.map((c) => ({ name: c.name, region: c.region, clientId: c.clientId || "", hasSecret: !!c.hasSecret }));
 }
@@ -217,7 +241,8 @@ function localOrgs() {
 // ── OAuth tab (both modes, as in the desktop app) ─────────────────────────
 function renderOAuth(error) {
   const panel = $("tab-oauth");
-  const local = S.mode === "local";
+  const local = S.mode === "local" || S.mode === "demo";  // the desktop's form, secret included
+  const demo = S.mode === "demo";
   const orgs = () => (local ? localOrgs() : loadOrgs());
   let current = orgs().find((o) => o.name === S.editing) || (S.editing === "" ? null : orgs()[0]) || null;
 
@@ -248,7 +273,7 @@ function renderOAuth(error) {
   function renderList() {
     const items = orgs().map((o) => h("div", { class: "item", "data-name": o.name, role: "option", tabindex: "0",
       onclick: () => fill(o), onkeydown: (e) => { if (e.key === "Enter") fill(o); } },
-    o.name, h("small", {}, local ? `${o.region} · pyramid.cfg` : `${o.region} · ${o.remember ? "remembered" : "this tab only"}`)));
+    o.name, h("small", {}, demo ? `${o.region} · demo` : local ? `${o.region} · pyramid.cfg` : `${o.region} · ${o.remember ? "remembered" : "this tab only"}`)));
     list.replaceChildren(...(items.length ? items : [h("p", { class: "note" }, "No saved clients yet.")]));
   }
   function formOrg() {
@@ -263,7 +288,7 @@ function renderOAuth(error) {
   }
   async function save(o) {
     if (local) {
-      const info = await localPost("local/clients", o);
+      const info = await backendPost("local/clients", o);
       S.localClients = info.clients || [];
     } else {
       const all = loadOrgs().filter((x) => x.name !== o.name && x.name !== current?.name);
@@ -277,12 +302,13 @@ function renderOAuth(error) {
   const guarded = (fn) => async () => { const o = formOrg(); if (!o) return; try { await fn(o); } catch (e) { fail(e.message); } };
   const signin = h("button", { class: "accent", type: "button", onclick: guarded(async (o) => {
     await save(o);
-    if (local) { localPost("local/last", { name: o.name }).catch(() => {}); connectLocal(o.name); } else await startPkce(o);
+    if (demo) connectDemo(o.name);
+    else if (local) { localPost("local/last", { name: o.name }).catch(() => {}); connectLocal(o.name); } else await startPkce(o);
   }) }, "Save and use");
   const test = h("button", { type: "button", onclick: guarded(async (o) => {
     if (!local) { status("On this page the connection is tested by signing in: Save and use", "warn"); return; }
     status("Testing connection...", "busy");
-    const r = await localPost("local/test", o);
+    const r = await backendPost("local/test", o);
     const msg = `Connected to ${r.org} (${r.region}). Token valid for ${Math.floor(r.expiresIn / 3600)}h ${Math.floor((r.expiresIn % 3600) / 60)}m.`;
     fail("");
     status("✓  " + msg, "ok");
@@ -290,9 +316,9 @@ function renderOAuth(error) {
   }) }, "Test connection");
   const keep = h("button", { type: "button", onclick: guarded(async (o) => { await save(o); status(`✓  Client ${o.name} saved`, "ok"); }) }, "Save");
   del.onclick = async () => {
-    if (!current || !confirm(`Delete the saved client "${current.name}"${local ? " from pyramid.cfg" : " from this browser"}?`)) return;
+    if (!current || !confirm(`Delete the saved client "${current.name}"${demo ? "" : local ? " from pyramid.cfg" : " from this browser"}?`)) return;
     try {
-      if (local) S.localClients = (await localPost("local/clients/delete", { name: current.name })).clients || [];
+      if (local) S.localClients = (await backendPost("local/clients/delete", { name: current.name })).clients || [];
       else saveOrgs(loadOrgs().filter((x) => x.name !== current.name));
     } catch (e) { return fail(e.message); }
     status(`Client ${current.name} deleted`, "ok");
@@ -302,7 +328,11 @@ function renderOAuth(error) {
   for (const el of [name, cid, secret]) el.addEventListener("keydown", (e) => { if (e.key === "Enter") signin.click(); });
   const redirect = h("input", { value: redirectUri(), readonly: true });
 
-  const note = local
+  const note = demo
+    ? h("p", { class: "note" }, "To use Pyramid with your own org, download the desktop app (",
+      h("a", { href: `${REPO}/releases`, target: "_blank", rel: "noopener" }, "releases"), ") or run ", h("code", {}, "pyramid web"),
+      ": same page, on your computer, with a real Client Credentials client.")
+    : local
     ? h("p", { class: "note" }, "Client Credentials clients, as in the desktop app: what Pyramid can read comes from the role given to the client.")
     : h("p", { class: "note" }, "On this page you sign in on the Genesys login page with your own account (PKCE client) and see only what your roles allow. A Client secret only works in the desktop app or in ",
       h("code", {}, "pyramid web"), " (same page, run on your computer): Genesys Cloud does not let a web page use it.");
@@ -402,6 +432,34 @@ function connectLocal(name) {
   closeAllTabs(false);
   showTab("main");
   connect();
+}
+
+async function connectDemo(name) {
+  const c = S.localClients.find((x) => x.name === name) || DEMO_CLIENT;
+  S.clientName = c.name;
+  S.region = c.region;
+  S.cache.clear();
+  closeAllTabs(false);
+  showTab("main");
+  status(`Signing in to ${c.name}...`, "busy");
+  await demoSignIn();
+  log("INFO", `Token acquired, valid for 86399s (demo)`);
+  S.api = new Api({ base: "https://api.demo.invalid", headers: () => ({ Authorization: `Bearer ${DEMO_TOKEN}` }),
+    fetchFn: S.demoFetch, onProgress: (t) => status(t, "busy") });
+  return connect();
+}
+
+async function startDemo() {
+  S.mode = "demo";
+  S.localClients = [{ ...DEMO_CLIENT }];
+  S.editing = DEMO_CLIENT.name;
+  S.demoFetch = await demoApi((path) => log("INFO", `GET ${path}  (demo)`));
+  const banner = $("demo-banner");
+  banner.replaceChildren(h("b", {}, "DEMO"), " Made-up data from a fictitious org. This page does not connect to Genesys Cloud or to anything else. ",
+    h("a", { href: `${REPO}/releases`, target: "_blank", rel: "noopener" }, "Download Pyramid"), " to use it with your org.");
+  banner.hidden = false;
+  log("WARN", "Demo mode: made-up data, no connection to Genesys Cloud");
+  return connectDemo(DEMO_CLIENT.name);
 }
 
 async function connect() {
@@ -693,7 +751,9 @@ function renderConfig() {
     h("p", { class: "note" }, "The browser uses the proxy settings of your system. In the desktop app and pyramid web, set the proxy in their Config tab."),
     h("h3", {}, "Storage"),
     PRIVACY(),
-    S.mode === "local"
+    S.mode === "demo"
+      ? h("p", { class: "note" }, "Demo: nothing is kept in this browser except the theme.")
+      : S.mode === "local"
       ? h("p", { class: "note" }, "Clients come from pyramid.cfg on this computer (managed by the desktop app). This browser keeps only the theme.")
       : [h("div", { class: "form-row" }, h("span", {}, "In this browser"),
         h("span", {}, `${session} client(s) for this tab only, ${local} remembered, ${token() ? "signed in" : "not signed in"}`)),
@@ -763,7 +823,7 @@ function renderAbout() {
     h("table", { class: "kv" }, h("tbody", {},
       [["Reports", `${S.catalog.endpoints.length} in ${S.catalog.sections.length} sections`],
         ["API", "Genesys Cloud Platform API v2 (REST, read only)"],
-        ["Mode", S.mode === "local" ? "pyramid web (this computer)" : "hosted (your browser only)"],
+        ["Mode", { local: "pyramid web (this computer)", demo: "demo (made-up data, no connection)" }[S.mode] || "hosted (your browser only)"],
         ["Desktop app", "Windows, macOS, Linux: github.com/igtoth/pyramid/releases"]].map(([k, v]) => h("tr", {}, h("th", {}, k), h("td", {}, v)))))));
   const ctx = canvas.getContext("2d");
   const bricks = [];

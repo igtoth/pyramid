@@ -6,7 +6,10 @@ A rewrite around one catalog of reports, shared by a new desktop app, a web
 version and a command line.
 
 ### Added
-- **Web version** at https://igtoth.github.io/pyramid/: saved orgs like the
+- **Live demo** at https://igtoth.github.io/pyramid/: the web page with a
+  made-up org answered inside the page; it connects to nothing (CSP
+  `connect-src 'self'`) and says so in a banner.
+- **Web version** (self-hosted): saved orgs like the
   desktop OAuth tab (kept in the tab's session, or in the browser when
   remembered; nothing on any server), sign in with your Genesys Cloud
   account (OAuth PKCE, no secret), same reports, same exports.

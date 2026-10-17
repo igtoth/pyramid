@@ -130,6 +130,7 @@ jobs:
           mkdir -p site
           cp -r src/pyramid/web/. site/
           cp src/pyramid/catalog.json site/
+          python3 scripts/demo_site.py site/index.html
           touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

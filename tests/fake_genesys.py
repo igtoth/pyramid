@@ -155,9 +155,9 @@ class Org:
         L["/api/v2/telephony/providers/edges"] = [
             {"id": _id(rng), "name": f"edge-{site}-{n}", "site": {"name": site}, "onlineStatus": "ONLINE",
              "statusCode": "INSERVICE", "edgeDeploymentType": "HARDWARE", "fullSoftwareVersion": "1.0.0.12345",
-             "state": "active"} for site in ("porto", "frankfurt", "dallas") for n in (1, 2)]
+             "state": "active"} for site in ("london", "frankfurt", "dallas") for n in (1, 2)]
         L["/api/v2/telephony/providers/edges/trunks"] = [
-            {"id": _id(rng), "name": n, "trunkType": t, "edge": {"name": "edge-porto-1"},
+            {"id": _id(rng), "name": n, "trunkType": t, "edge": {"name": "edge-london-1"},
              "connectedStatus": {"connected": c}, "inService": True, "enabled": True, "state": "active"}
             for n, t, c in [("BYOC Carrier A", "EXTERNAL", True), ("BYOC Carrier B", "EXTERNAL", True),
                             ("Legacy PBX", "EXTERNAL", False), ("Station Trunk", "STATION", True)]]
@@ -186,6 +186,22 @@ class Org:
         L["/api/v2/recording/keyconfigurations"] = [
             {"id": _id(rng), "keyConfigurationType": "KmsSymmetric", "url": "https://kms.example", "apiId": "kms-1",
              "apiKey": "SHOULD-NEVER-APPEAR", "lastError": ""}]
+
+
+def demo_data(org: Org | None = None) -> dict:
+    """Everything the web page's demo mode answers from (src/pyramid/web/demo.json)."""
+    org = org or Org()
+    clean = lambda items: [{k: v for k, v in x.items() if not k.startswith("_")} for x in items]  # noqa: E731
+    return {
+        "note": "Made-up data from tests/fake_genesys.py (scripts/make_demo.py). No real org.",
+        "objects": org.objects,
+        "listings": {path: clean(items) for path, items in org.listings.items()},
+        "cursorPaths": sorted(e.path for e in load().endpoints if e.cursor),
+        "queueMembers": {q["id"]: [{"id": x["id"], "name": x["name"], "user": {"id": x["id"]}, "joined": True,
+                                    "routingStatus": {"status": "IDLE"}} for x in q["_members"]] for q in org.queues},
+        "roleUsers": {r["id"]: [{"id": x["id"], "name": x["name"]} for x in r["_users"]] for r in org.roles},
+        "profileMetrics": org.profile_metrics,
+    }
 
 
 class Handler(BaseHTTPRequestHandler):
