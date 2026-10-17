@@ -5,6 +5,7 @@ for CA certificates when it is installed)."""
 from __future__ import annotations
 
 import base64
+import email.utils
 import json
 import logging
 import random
@@ -122,7 +123,15 @@ class GenesysClient:
                 headers={"Authorization": f"Basic {basic}",
                          "Content-Type": "application/x-www-form-urlencoded",
                          "User-Agent": USER_AGENT})
-            data = self._send(req, what="authentication")
+            for attempt in range(self.max_retries + 1):
+                try:
+                    data = self._send(req, what="authentication")
+                    break
+                except ApiError as e:
+                    if e.status in (429, 502, 503, 504) and attempt < self.max_retries:
+                        time.sleep(min(self.backoff_cap, 2 ** attempt + random.random()))
+                        continue
+                    raise
             self._token = data["access_token"]
             # Keep a minute of margin; the lifetime is set per OAuth client.
             self._token_expires = time.time() + max(60, int(data.get("expires_in", 3600)) - 60)
@@ -234,7 +243,8 @@ class GenesysClient:
             if progress:
                 done = f"{page}/{count}" if count else f"{page}"
                 progress(f"{label} page {done}".strip())
-            if isinstance(count, int) and next_url is None:
+            # walk by pageNumber only when we sent one; otherwise the same URL would come back
+            if isinstance(count, int) and next_url is None and number_paging and page_size:
                 if page >= count or not data.get("entities"):
                     return
                 page += 1
@@ -267,12 +277,23 @@ def _query_pairs(params: dict[str, Any]) -> list[tuple[str, str]]:
     return pairs
 
 
+RETRY_AFTER_CAP = 120.0
+
+
 def _retry_after(e: urllib.error.HTTPError) -> float | None:
+    """Seconds to wait from Retry-After (seconds or an HTTP date), between 1 s and 2 min."""
     value = e.headers.get("Retry-After") if e.headers else None
-    try:
-        return max(1.0, float(value)) if value else None
-    except ValueError:
+    if not value:
         return None
+    try:
+        secs = float(value)
+    except ValueError:
+        try:
+            when = email.utils.parsedate_to_datetime(value)
+            secs = when.timestamp() - time.time()
+        except (TypeError, ValueError):
+            return None
+    return min(RETRY_AFTER_CAP, max(1.0, secs))
 
 
 def _api_error(e: urllib.error.HTTPError) -> ApiError:

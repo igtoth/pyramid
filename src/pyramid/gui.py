@@ -27,7 +27,7 @@ from typing import Any
 from . import APP_TITLE, REPO_URL, __version__, data
 from .catalog import Column, Endpoint, load
 from .client import ApiError, Cancelled, CancelToken, GenesysClient
-from .config import OAuthClient, Store, valid_proxy
+from .config import OAuthClient, Store, redact_url, valid_proxy
 from .fetch import Result, fetch, queue_members
 from .regions import REGIONS
 
@@ -274,19 +274,31 @@ class App:
             r.bind(f"<{MOD}-{key}>", lambda e: self.close_current())
 
     def _drain(self):
+        """Run what the workers posted. One failing event must not stop the next ones."""
         try:
             while True:
-                ev = self.events.get_nowait()
-                kind = ev[0]
-                if kind == "log":
-                    self.logline(ev[1], ev[2])
-                elif kind == "progress":
-                    self.status(ev[1], "accent")
-                elif kind == "call":
-                    ev[1](*ev[2:])
-        except queue.Empty:
-            pass
-        self.root.after(60, self._drain)
+                try:
+                    ev = self.events.get_nowait()
+                except queue.Empty:
+                    break
+                try:
+                    kind = ev[0]
+                    if kind == "log":
+                        self.logline(ev[1], ev[2])
+                    elif kind == "progress":
+                        self.status(ev[1], "accent")
+                    elif kind == "call":
+                        ev[1](*ev[2:])
+                except Exception as e:  # keep the window alive, say what happened
+                    self.busy = False
+                    try:
+                        self._busy_ui(False)
+                        self.status(f"Error: {type(e).__name__}: {e}", "danger")
+                        self.logline("ERROR", f"Internal error: {type(e).__name__}: {e}")
+                    except Exception:
+                        pass
+        finally:
+            self.root.after(60, self._drain)
 
     def run_task(self, label_: str, work: Callable[[CancelToken], Any], done: Callable[[Any], None],
                  cancellable: bool = True):
@@ -398,7 +410,7 @@ class App:
                              selectcolor=P["bg_surface"], activebackground=P["bg_raised"],
                              activeforeground=P["accent"], font=F["ui_sm"], bd=0, highlightthickness=0)
         chk.pack(side="right", padx=6)
-        ToolTip(chk, lambda: f"Use the proxy\n{self.store.get('proxy_url') or 'No proxy configured (Config tab)'}")
+        ToolTip(chk, lambda: f"Use the proxy\n{redact_url(self.store.get('proxy_url')) or 'No proxy configured (Config tab)'}")
         self._client_label()
 
     def _client_label(self):
@@ -618,7 +630,11 @@ class App:
         if ep.slow and not force and not messagebox.askyesno(
                 ep.label, f"{ep.help}\n\nThis can take several minutes in a large org. Continue?"):
             return
-        gc = self.client()
+        try:
+            gc = self.client()
+        except ValueError as e:  # a region this version does not know
+            self.show_error(ep.label, str(e))
+            return
         progress = self.progress_fn()
 
         def work(cancel):
@@ -719,7 +735,11 @@ class App:
             self.logline("OK", f"JSON saved: {path}")
 
     def show_members(self, queue_rec: dict):
-        gc = self.client()
+        try:
+            gc = self.client()
+        except ValueError as e:
+            self.show_error("Queue members", str(e))
+            return
         name = queue_rec.get("name", "")
 
         def done(members):
@@ -947,7 +967,7 @@ class App:
             self.store.set("proxy_enabled", bool(self.proxy_on.get() and u))
             self.clients.clear()
             self.status("✓  Proxy saved", "success")
-            self.logline("OK", f"Proxy {'on: ' + u if self.proxy_on.get() and u else 'off'}")
+            self.logline("OK", f"Proxy {'on: ' + redact_url(u) if self.proxy_on.get() and u else 'off'}")
 
         button(outer, "Save proxy", save_proxy, kind="accent").pack(anchor="w", padx=128, pady=6)
 
@@ -974,7 +994,7 @@ class App:
         self.store.set("proxy_enabled", on)
         self.clients.clear()
         if hasattr(self, "status_lbl"):
-            self.status(f"Proxy {'ON: ' + url if on else 'OFF'}", "warn" if on else "fg_secondary")
+            self.status(f"Proxy {'ON: ' + redact_url(url) if on else 'OFF'}", "warn" if on else "fg_secondary")
 
     def set_theme(self, theme: str):
         if theme == self.theme:

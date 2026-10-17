@@ -46,7 +46,7 @@ jobs:
         run: |
           playwright install --with-deps chromium
           python scripts/web_check.py shots
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: screenshots
           path: shots/
@@ -112,7 +112,7 @@ jobs:
           "$exe" list > /dev/null
           ls -la dist
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: pyramid-${{ matrix.name }}
           path: dist/*
@@ -168,7 +168,7 @@ jobs:
         with:
           sparse-checkout: docs/CHANGELOG.md
           sparse-checkout-cone-mode: false
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           path: artifacts
           pattern: pyramid-*

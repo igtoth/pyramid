@@ -107,3 +107,36 @@ def test_proxy_setting_is_used(fake, monkeypatch):
     c = GenesysClient("us_east_1", fg.CLIENT_ID, fg.CLIENT_SECRET, proxy="http://127.0.0.1:9", max_retries=0)
     with pytest.raises(ApiError):
         c.token()  # the dead proxy is really in the way
+
+
+def test_page_count_without_page_number_is_not_walked(client, monkeypatch):
+    """A listing fetched without pageNumber must not refetch the same page pageCount times."""
+    calls = []
+
+    def fake_get(path, params=None, cancel=None, progress=None):
+        calls.append((path, params))
+        return {"entities": [{"id": "a"}], "pageCount": 3}
+
+    monkeypatch.setattr(client, "get", fake_get)
+    recs, _ = client.entities("/api/v2/oauth/clients", page_size=None)
+    assert len(calls) == 1 and len(recs) == 1
+    calls.clear()
+    recs, _ = client.entities("/api/v2/teams", page_size=10, cursor=True)
+    assert len(calls) == 1
+
+
+def test_retry_after_forms():
+    import email.utils
+    import time as _t
+    import urllib.error
+
+    from pyramid.client import _retry_after
+
+    def err(v):
+        return urllib.error.HTTPError("u", 429, "x", {"Retry-After": v} if v else {}, None)
+
+    assert _retry_after(err("3")) == 3
+    assert _retry_after(err("0")) == 1
+    assert _retry_after(err("99999")) == 120
+    assert 25 <= _retry_after(err(email.utils.formatdate(_t.time() + 30, usegmt=True))) <= 31
+    assert _retry_after(err("soon")) is None and _retry_after(err(None)) is None

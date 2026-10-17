@@ -5,7 +5,7 @@ import pytest
 
 import fake_genesys as fg
 from pyramid.config import OAuthClient, Store
-from pyramid.webserver import COOKIE, make_server
+from pyramid.webserver import _web_file, make_server
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def req(srv, path, method="GET", host=None, cookie=True):
     c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
     headers = {"Host": host or f"127.0.0.1:{port}"}
     if cookie:
-        headers["Cookie"] = f"{COOKIE}={srv.key}"
+        headers["Cookie"] = f"{srv.cookie}={srv.key}"
     c.request(method, path, headers=headers)
     r = c.getresponse()
     return r.status, r.getheaders(), r.read()
@@ -34,12 +34,24 @@ def test_static_page_is_marked_local(local):
     assert status == 200 and b'data-mode="local"' in body
 
 
-def test_key_in_url_sets_cookie(local):
-    status, headers, _ = req(local, f"/?k={local.key}", cookie=False)
+def test_key_in_url_sets_cookie_once(local):
+    url_key = local.url_key
+    assert req(local, "/?k=wrong", cookie=False)[0] == 403
+    status, headers, _ = req(local, f"/?k={url_key}", cookie=False)
     assert status == 303
     cookie = dict(headers)["Set-Cookie"]
-    assert local.key in cookie and "HttpOnly" in cookie and "SameSite=Strict" in cookie
-    assert req(local, "/?k=wrong", cookie=False)[0] == 403
+    port = local.server_address[1]
+    assert cookie.startswith(f"pyramid_session_{port}={local.key};")  # named after the port
+    assert "HttpOnly" in cookie and "SameSite=Strict" in cookie
+    assert local.key != url_key
+    assert req(local, f"/?k={url_key}", cookie=False)[0] == 403  # single use
+
+
+def test_cookie_of_another_port_is_ignored(local):
+    port = local.server_address[1]
+    c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+    c.request("GET", "/local/info", headers={"Host": f"127.0.0.1:{port}", "Cookie": f"pyramid_session_1={local.key}"})
+    assert c.getresponse().status == 401
 
 
 def test_local_needs_cookie_and_host(local):
@@ -65,3 +77,35 @@ def test_proxy_keeps_paging_relative(local):
 def test_no_path_traversal(local):
     assert req(local, "/../config.py")[0] == 404
     assert req(local, "/..%2F__init__.py")[0] == 404
+    assert req(local, "/C:/Users/x/AppData/Roaming/Pyramid/pyramid.cfg")[0] == 404
+    for name in ("C:/Windows/win.ini", "/etc/passwd", "web/../config.py", "assets/pyramid-16.png", "../catalog.py"):
+        assert _web_file("/" + name) is None, name
+    for name in ("index.html", "app.js", "core.js", "app.css", "catalog.json", "favicon.png"):
+        assert _web_file("/" + name), name
+
+
+def test_encoded_dots_not_forwarded(local, fake):
+    for path in ("/api/v2/%2e%2e/%2e%2e/oauth/x", "/api/v2/users/%2fx", "/api/v2/./users", "/api/v2/users/../../x"):
+        assert req(local, "/local/api/Lumen%20Harbor" + path)[0] == 400, path
+
+
+def test_edited_secret_takes_effect(local, fake):
+    assert req(local, "/local/api/Lumen%20Harbor/api/v2/organizations/me")[0] == 200
+    store = Store()
+    store.put_client(OAuthClient("Lumen Harbor", "eu_west_1", fg.CLIENT_ID, "rotated-wrong"))
+    assert req(local, "/local/api/Lumen%20Harbor/api/v2/organizations/me")[0] in (400, 401)
+
+
+def test_unknown_region_is_a_clean_error(local, monkeypatch):
+    monkeypatch.delenv("PYRAMID_API_BASE")  # the fake answers for every region otherwise
+    store = Store()
+    store.put_client(OAuthClient("Mars", "mars_north_1", fg.CLIENT_ID, fg.CLIENT_SECRET))
+    status, _, body = req(local, "/local/api/Mars/api/v2/users")
+    assert status == 400 and b"Unknown region" in body
+
+
+def test_concurrent_requests_see_the_clients(local):
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(16) as pool:
+        codes = list(pool.map(lambda _: req(local, "/local/info")[0], range(200)))
+    assert set(codes) == {200}

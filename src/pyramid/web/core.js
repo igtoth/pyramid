@@ -4,6 +4,8 @@
 
 export const LIST_SEP = "; ";
 const FORMULA_START = ["=", "+", "-", "@", "\t", "\r"];
+const PLAIN_NUMBER = /^[+-]?\d[\d.]*$/;  // E.164 numbers and negatives are not formulas
+const LONE_SURROGATE = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/g;
 const ACRONYMS = { id: "ID", dnis: "DNIS", url: "URL", uri: "URI", api: "API", mx: "MX", kpi: "KPI", dnc: "DNC", smtp: "SMTP", rrule: "RRule" };
 
 export const API_HOSTS = {
@@ -77,7 +79,7 @@ export function cell(value) {
   if (value === null || value === undefined) return "";
   if (typeof value === "boolean") return value ? "true" : "false";
   if (typeof value === "number") return Number.isInteger(value) ? String(value) : String(value);
-  if (typeof value === "string") return value;
+  if (typeof value === "string") return value.replace(LONE_SURROGATE, "\ufffd");
   if (Array.isArray(value)) return value.map(cell).filter(Boolean).join(LIST_SEP);
   if (typeof value === "object") {
     for (const k of ["name", "displayName", "id"]) {
@@ -114,7 +116,7 @@ export function flattenObject(obj, prefix = "") {
   return out;
 }
 
-export const csvSafe = (v) => (FORMULA_START.some((c) => v.startsWith(c)) ? "'" + v : v);
+export const csvSafe = (v) => (FORMULA_START.some((c) => v.startsWith(c)) && !PLAIN_NUMBER.test(v) ? "'" + v : v);
 
 export function toCSV(header, rows) {
   const q = (v) => {
@@ -138,6 +140,18 @@ const sleep = (ms, signal) => new Promise((res, rej) => {
   const t = setTimeout(res, ms);
   signal?.addEventListener("abort", () => { clearTimeout(t); rej(new Cancelled("cancelled")); }, { once: true });
 });
+
+// Seconds from Retry-After (seconds or an HTTP date), between 1 s and 2 min.
+export function retryAfter(value) {
+  if (!value) return null;
+  let secs = Number(value);
+  if (Number.isNaN(secs)) {
+    const t = Date.parse(value);
+    if (Number.isNaN(t)) return null;
+    secs = (t - Date.now()) / 1000;
+  }
+  return Math.min(120, Math.max(1, secs));
+}
 
 function queryString(params) {
   const sp = new URLSearchParams();
@@ -188,8 +202,7 @@ export class Api {
       }
       if (resp.ok) return resp.status === 204 ? {} : resp.json();
       if ([429, 502, 503, 504].includes(resp.status) && attempt < this.maxRetries) {
-        const ra = parseFloat(resp.headers.get("Retry-After"));
-        const wait = ra > 0 ? ra : Math.min(60, 2 ** attempt + Math.random());
+        const wait = retryAfter(resp.headers.get("Retry-After")) ?? Math.min(60, 2 ** attempt + Math.random());
         this.onProgress(`HTTP ${resp.status}, retrying in ${Math.round(wait)}s (${attempt + 1}/${this.maxRetries})`);
         await sleep(wait * 1000, signal);
         continue;
@@ -221,7 +234,8 @@ export class Api {
       if (!data || typeof data !== "object") return;
       const count = data.pageCount;
       this.onProgress(`${label} page ${count ? `${page}/${count}` : page}`.trim());
-      if (Number.isInteger(count) && nextUrl === null) {
+      // walk by pageNumber only when we sent one; otherwise the same URL would come back
+      if (Number.isInteger(count) && nextUrl === null && numberPaging && pageSize) {
         if (page >= count || !(data.entities || []).length) return;
         page++;
         continue;

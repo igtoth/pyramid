@@ -15,6 +15,7 @@ converted on the next save.
 from __future__ import annotations
 
 import configparser
+import logging
 import os
 import sys
 import tempfile
@@ -22,6 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 CLIENT_PREFIX = "client:"
+log = logging.getLogger("pyramid.config")
 
 
 @dataclass
@@ -51,6 +53,15 @@ def _legacy_file() -> Path | None:
     return p if p.is_file() else None
 
 
+def _set_client(cp: configparser.RawConfigParser, c: OAuthClient) -> None:
+    s = CLIENT_PREFIX + c.name
+    if not cp.has_section(s):
+        cp.add_section(s)
+    cp.set(s, "region", c.region)
+    cp.set(s, "client_id", c.client_id)
+    cp.set(s, "client_secret", c.client_secret)
+
+
 def _parser() -> configparser.RawConfigParser:
     cp = configparser.RawConfigParser(interpolation=None)  # '%' in URLs and secrets is fine
     cp.optionxform = str  # keep the case of names
@@ -61,28 +72,43 @@ class Store:
     def __init__(self, path: Path | None = None):
         self.path = Path(path) if path else config_dir() / "pyramid.cfg"
         self._cp = _parser()
+        self._stamp: tuple | None = None
         self.reload()
 
     # ── file ──────────────────────────────────────────────────────────────
 
+    def _file_stamp(self) -> tuple | None:
+        try:
+            st = self.path.stat()
+            return (st.st_mtime_ns, st.st_size)
+        except OSError:
+            return None
+
     def reload(self) -> None:
-        self._cp = _parser()
+        """Read the file into a new parser, then swap it in at once (readers never see it half-filled)."""
+        cp = _parser()
         source = self.path if self.path.is_file() else _legacy_file()
         if source:
-            self._cp.read(source, encoding="utf-8")
-        self._migrate()
+            cp.read(source, encoding="utf-8")
+        self._migrate(cp)
+        self._stamp = self._file_stamp()
+        self._cp = cp
 
-    def _migrate(self) -> None:
-        cp = self._cp
+    def reload_if_changed(self) -> None:
+        if self._file_stamp() != self._stamp:
+            self.reload()
+
+    def _migrate(self, cp: configparser.RawConfigParser) -> None:
         if cp.has_section("clients"):  # v2: name = region,id,secret
             for name, value in cp.items("clients"):
                 parts = value.split(",", 2)
                 if len(parts) == 3 and not cp.has_section(CLIENT_PREFIX + name):
-                    self._set_client_section(OAuthClient(name, *[p.strip() for p in parts]))
+                    _set_client(cp, OAuthClient(name, *[p.strip() for p in parts]))
             cp.remove_section("clients")
         if cp.has_section("Settings"):  # v2 terms flag lived in [Settings]
             for k, v in cp.items("Settings"):
-                self._ensure("settings")
+                if not cp.has_section("settings"):
+                    cp.add_section("settings")
                 cp.set("settings", k, v)
             cp.remove_section("Settings")
 
@@ -99,6 +125,20 @@ class Store:
             if os.path.exists(tmp):
                 os.unlink(tmp)
             raise
+        self._stamp = self._file_stamp()
+        self._protect_legacy()
+
+    def _protect_legacy(self) -> None:
+        """v2 left ~/Pyramid/pyramid.cfg readable by everyone, secrets included.
+        Its content now lives in the new file: make the old one private."""
+        old = _legacy_file()
+        if old and old.resolve() != self.path.resolve() and os.name == "posix":
+            try:
+                if os.stat(old).st_mode & 0o077:
+                    os.chmod(old, 0o600)
+                    log.warning("Made the v2 settings file %s private (0600); it can be deleted", old)
+            except OSError:
+                pass
 
     def _ensure(self, section: str) -> None:
         if not self._cp.has_section(section):
@@ -125,11 +165,7 @@ class Store:
         return None
 
     def _set_client_section(self, c: OAuthClient) -> None:
-        s = CLIENT_PREFIX + c.name
-        self._ensure(s)
-        self._cp.set(s, "region", c.region)
-        self._cp.set(s, "client_id", c.client_id)
-        self._cp.set(s, "client_secret", c.client_secret)
+        _set_client(self._cp, c)
 
     def put_client(self, c: OAuthClient, old_name: str | None = None) -> None:
         name = c.name.strip()
@@ -167,3 +203,13 @@ class Store:
 
 def valid_proxy(url: str) -> bool:
     return url == "" or url.startswith(("http://", "https://"))
+
+
+def redact_url(url: str) -> str:
+    """http://user:pass@proxy:8080 -> http://***@proxy:8080, for logs and screens."""
+    if not url or "@" not in url:
+        return url or ""
+    scheme, sep, rest = url.partition("://")
+    if not sep:
+        return "***@" + url.rsplit("@", 1)[1]
+    return f"{scheme}://***@{rest.rsplit('@', 1)[1]}"

@@ -43,6 +43,11 @@ def build_site() -> Path:
     site = Path(tempfile.mkdtemp(prefix="pyramid-site-")) / "pyramid"   # served under /pyramid/ like Pages
     shutil.copytree(ROOT / "src/pyramid/web", site, dirs_exist_ok=True)
     shutil.copy(ROOT / "src/pyramid/catalog.json", site / "catalog.json")
+    # the published page only talks to Genesys Cloud; let this test copy reach the fake on 127.0.0.1
+    index = site / "index.html"
+    text = index.read_text(encoding="utf-8")
+    assert "https://*.eusc-pure.cloud;" in text
+    index.write_text(text.replace("https://*.eusc-pure.cloud;", "https://*.eusc-pure.cloud http://127.0.0.1:*;"), encoding="utf-8")
     return site
 
 
@@ -82,7 +87,7 @@ with sync_playwright() as p:
     # without the session key, the proxy refuses
     r = page.request.get(f"http://127.0.0.1:{port}/local/info")
     assert r.status == 401, r.status
-    page.goto(f"http://127.0.0.1:{port}/?k={local.key}")
+    page.goto(f"http://127.0.0.1:{port}/?k={local.url_key}")
     page.get_by_role("button", name="Connect").click()
     expect(page.locator("#org")).to_contain_text("Lumen Harbor Telecom")
     page.screenshot(path=str(OUT / "pyramid-web-home.jpg"), quality=88)

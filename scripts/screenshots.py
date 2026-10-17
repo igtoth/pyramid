@@ -120,6 +120,14 @@ try:
     assert app.current is not None and len(app.tabs) == n - 1
     app.close_all_tabs()
     assert app.current is None and not app.tabs
+    # a failing event does not stop the window from processing the next ones
+    seen = []
+    app.events.put(("call", lambda: 1 / 0))
+    app.events.put(("call", lambda: seen.append("after")))
+    for _ in range(20):
+        root.update()
+        time.sleep(0.05)
+    assert seen == ["after"] and not app.busy, "event loop stopped after an error"
     # every report opens without error
     app.set_theme("light")
     gui.messagebox.askyesno = lambda *a, **k: True

@@ -49,9 +49,23 @@ def test_csv_injection_guard_and_bom(tmp_path):
     raw = p.read_bytes()
     assert raw.startswith(b"\xef\xbb\xbf")
     text = raw.decode("utf-8-sig").splitlines()
-    assert text[1] == "\"'=HYPERLINK(\"\"http://x\"\")\",'+1"
-    assert text[2] == "'-2,'@cmd"
+    assert text[1] == "\"'=HYPERLINK(\"\"http://x\"\")\",+1"   # a plain number stays a number
+    assert text[2] == "-2,'@cmd"
     assert text[3] == "ok,Ação"
+
+
+def test_numbers_are_not_treated_as_formulas(tmp_path):
+    assert data.csv_safe("+15550100") == "+15550100"
+    assert data.csv_safe("-2.5") == "-2.5"
+    assert data.csv_safe("+1 555 0100") == "'+1 555 0100"
+    assert data.csv_safe("-1+cmd|' /C calc'!A0") == "'-1+cmd|' /C calc'!A0"
+
+
+def test_lone_surrogate_is_replaced(tmp_path):
+    bad = "half \ud83d emoji"
+    assert data.cell(bad) == "half \ufffd emoji"
+    data.write_csv(str(tmp_path / "x.csv"), ["a"], [[data.cell(bad)]])  # no UnicodeEncodeError
+    assert data.cell("whole 😀") == "whole 😀"
 
 
 def test_strip_fields():

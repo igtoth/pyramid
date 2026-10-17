@@ -57,6 +57,8 @@ def test_same_rows_and_csv_in_python_and_js(client, tmp_path):
     # sprinkle values the rules treat specially
     results["groups"]["records"][0]["name"] = "=1+1"
     expected["groups"]["rows"][0][0] = "=1+1"
+    results["teams"]["records"][0]["name"] = "half \ud83d emoji"
+    results["teams"]["records"][1]["name"] = "+15550100"
     script = tmp_path / "parity.mjs"
     script.write_text(SCRIPT % json.dumps(CORE.as_uri()), encoding="utf-8")
     proc = subprocess.run([NODE, str(script)], input=json.dumps({"catalog": raw_catalog(), "results": results}),
@@ -65,6 +67,10 @@ def test_same_rows_and_csv_in_python_and_js(client, tmp_path):
     for key, exp in expected.items():
         if key == "groups":
             assert got[key]["rows"][0][0] == "=1+1" and "'=1+1" in got[key]["csv"]
+            continue
+        if key == "teams":
+            assert got[key]["rows"][0][0] == "half \ufffd emoji"
+            assert got[key]["rows"][1][0] == "+15550100" and "\r\n+15550100," in got[key]["csv"]
             continue
         assert got[key]["headers"] == exp["headers"], key
         assert got[key]["rows"] == exp["rows"], key

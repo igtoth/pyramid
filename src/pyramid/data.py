@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 from collections.abc import Iterable, Sequence
 from typing import Any
 
@@ -14,6 +15,9 @@ LIST_SEP = "; "
 # A cell that starts with one of these is run as a formula by Excel and
 # LibreOffice (CSV injection); exported cells get a leading apostrophe.
 FORMULA_START = ("=", "+", "-", "@", "\t", "\r")
+# ...except plain numbers, such as E.164 phone numbers (+15550100) and negatives
+PLAIN_NUMBER = re.compile(r"^[+-]?\d[\d.]*$")
+LONE_SURROGATE = re.compile("[\ud800-\udfff]")
 
 
 def resolve(obj: Any, path: str) -> Any:
@@ -41,7 +45,7 @@ def cell(value: Any) -> str:
     if isinstance(value, (int, float)):
         return str(value)
     if isinstance(value, str):
-        return value
+        return _clean(value)
     if isinstance(value, dict):
         for k in ("name", "displayName", "id"):
             if isinstance(value.get(k), (str, int)):
@@ -50,6 +54,13 @@ def cell(value: Any) -> str:
     if isinstance(value, (list, tuple)):
         return LIST_SEP.join(s for s in (cell(v) for v in value) if s)
     return str(value)
+
+
+def _clean(s: str) -> str:
+    """Half an emoji (a lone UTF-16 surrogate) in API JSON would crash Tk and the CSV writer."""
+    if LONE_SURROGATE.search(s):
+        return s.encode("utf-16", "surrogatepass").decode("utf-16", "replace")
+    return s
 
 
 def rows(records: Iterable[dict[str, Any]], columns: Sequence[Column]) -> list[list[str]]:
@@ -90,7 +101,9 @@ def flatten_object(obj: Any, prefix: str = "") -> list[tuple[str, str]]:
 
 
 def csv_safe(value: str) -> str:
-    return "'" + value if value.startswith(FORMULA_START) else value
+    if value.startswith(FORMULA_START) and not PLAIN_NUMBER.match(value):
+        return "'" + value
+    return value
 
 
 def write_csv(path: str, header: Sequence[str], body: Iterable[Sequence[str]]) -> int:

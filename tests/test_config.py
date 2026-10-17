@@ -3,7 +3,7 @@ import stat
 
 import pytest
 
-from pyramid.config import OAuthClient, Store, valid_proxy
+from pyramid.config import OAuthClient, Store, redact_url, valid_proxy
 
 
 def test_v2_file_is_migrated(cfgdir):
@@ -47,3 +47,37 @@ def test_file_is_private(cfgdir):
 def test_proxy_validation():
     assert valid_proxy("") and valid_proxy("http://p:8080") and valid_proxy("https://p")
     assert not valid_proxy("socks5://p") and not valid_proxy("proxy:8080")
+
+
+def test_reload_only_when_changed(cfgdir):
+    a = Store()
+    a.put_client(OAuthClient("one", "us_east_1", "i", "s"))
+    b = Store()
+    b.reload_if_changed()
+    assert [c.name for c in b.clients()] == ["one"]
+    a.put_client(OAuthClient("two", "us_east_1", "i", "s"))
+    b.reload_if_changed()
+    assert [c.name for c in b.clients()] == ["one", "two"]
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX permissions")
+def test_v2_file_made_private(tmp_path, monkeypatch):
+    home = tmp_path / "home"
+    old = home / "Pyramid" / "pyramid.cfg"
+    old.parent.mkdir(parents=True)
+    old.write_text("[clients]\nx = us_east_1,id,secret\n", encoding="utf-8")
+    os.chmod(old, 0o644)
+    monkeypatch.delenv("PYRAMID_CONFIG_DIR", raising=False)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(home / ".config"))
+    s = Store()
+    assert s.client("x").client_secret == "secret"
+    s.save()
+    assert stat.S_IMODE(os.stat(old).st_mode) == 0o600
+    assert (home / ".config" / "Pyramid" / "pyramid.cfg").exists()
+
+
+def test_redact_url():
+    assert redact_url("http://user:p%40ss@proxy:8080") == "http://***@proxy:8080"
+    assert redact_url("http://proxy:8080") == "http://proxy:8080"
+    assert redact_url("") == ""

@@ -66,6 +66,10 @@ function toggleTheme() {
 
 // ── start ─────────────────────────────────────────────────────────────────
 async function init() {
+  if (window.top !== window.self) {  // no framing (GitHub Pages cannot send X-Frame-Options)
+    document.body.textContent = "Pyramid cannot be shown inside another page.";
+    return;
+  }
   applyTheme(store.get("localStorage", "theme"));
   $("version").textContent = "v" + VERSION;
   $("btn-theme").onclick = toggleTheme;
@@ -85,16 +89,22 @@ async function init() {
     return showConnectLocal(local);
   }
   const q = new URLSearchParams(location.search);
-  if (q.get("api") && /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(q.get("api"))) {
-    store.set("sessionStorage", "devBase", q.get("api"));  // tests and demos against tests/fake_genesys.py
+  // Tests and demos against tests/fake_genesys.py: only for a page itself served from this computer,
+  // never with a token around (it would be sent to that address), and it drops any token.
+  const pageIsLocal = ["127.0.0.1", "localhost"].includes(location.hostname);
+  if (pageIsLocal && q.get("api") && /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(q.get("api"))) {
+    store.set("sessionStorage", "token", null);
+    store.set("sessionStorage", "devBase", q.get("api"));
+    history.replaceState(null, "", location.pathname);
   }
+  if (!pageIsLocal) store.set("sessionStorage", "devBase", null);
   if (q.has("code") || q.has("error")) return finishPkce(q);
   const tok = token();
   if (tok) return connectHosted(tok.region);
   showConnectHosted();
 }
 
-function devBase() { return store.get("sessionStorage", "devBase"); }
+function devBase() { return ["127.0.0.1", "localhost"].includes(location.hostname) ? store.get("sessionStorage", "devBase") : null; }
 function apiHost(region) { return devBase() || API_HOSTS[region]; }
 function loginBase(region) { return devBase() || loginHost(API_HOSTS[region]); }
 function redirectUri() { return location.origin + location.pathname; }
