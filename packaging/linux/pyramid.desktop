@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Pyramid
+GenericName=Genesys Cloud reports
+Comment=Browse, audit and export a Genesys Cloud organization
+Exec=Pyramid %U
+Icon=pyramid
+Terminal=false
+Categories=Network;Office;Utility;
+Keywords=Genesys;PureCloud;contact center;export;audit;
+StartupWMClass=Pyramid

@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyramid-genesys"
+dynamic = ["version"]
+description = "Browse, audit and export a Genesys Cloud organization: desktop app, web page and command line."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Ighor Toth", email = "toth@ighor.com" }]
+keywords = ["genesys", "genesys-cloud", "purecloud", "contact-center", "export", "audit", "csv"]
+classifiers = [
+  "Environment :: X11 Applications :: Tk",
+  "Environment :: Win32 (MS Windows)",
+  "Environment :: MacOS X",
+  "Intended Audience :: System Administrators",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Communications :: Telephony",
+]
+dependencies = ["certifi>=2024.2.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "Pillow>=10", "nuitka>=2.5", "playwright>=1.45"]
+
+[project.urls]
+Homepage = "https://github.com/igtoth/pyramid"
+Web = "https://igtoth.github.io/pyramid/"
+Issues = "https://github.com/igtoth/pyramid/issues"
+
+[project.scripts]
+pyramid = "pyramid.__main__:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "pyramid.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pyramid = ["catalog.json", "web/*", "assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 150
+target-version = "py310"
+extend-exclude = ["old"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E731", "B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pyramid", "fake_genesys"]

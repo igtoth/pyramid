@@ -1,0 +1,253 @@
+{
+  "version": 1,
+  "sections": [
+    {"id": "directory",   "name": "Users, Teams & Directory", "icon": "👤", "color": 0},
+    {"id": "telephony",   "name": "Telephony & Architect",    "icon": "📞", "color": 1},
+    {"id": "routing",     "name": "Routing & Queues",         "icon": "🔀", "color": 2},
+    {"id": "security",    "name": "Security",                 "icon": "🔐", "color": 3},
+    {"id": "config",      "name": "Configuration",            "icon": "⚙",  "color": 4},
+    {"id": "integrations","name": "Integrations",             "icon": "🔌", "color": 5},
+    {"id": "quality",     "name": "Quality Management",       "icon": "🎯", "color": 0},
+    {"id": "recording",   "name": "Recording",                "icon": "🎙", "color": 1},
+    {"id": "outbound",    "name": "Outbound",                 "icon": "📤", "color": 2},
+    {"id": "wfm",         "name": "Workforce Management",     "icon": "📅", "color": 3},
+    {"id": "stations",    "name": "Stations & Presence",      "icon": "📱", "color": 4},
+    {"id": "analytics",   "name": "Analytics & Gamification", "icon": "📊", "color": 5}
+  ],
+  "endpoints": [
+    {"key": "users", "label": "All Users", "section": "directory",
+     "path": "/api/v2/users", "pageSize": 500,
+     "query": {"expand": ["lasttokenissued", "dateLastLogin"], "sortOrder": "ASC"},
+     "variants": [{"state": "active"}, {"state": "inactive"}],
+     "columns": ["name", "username", "email", "title", "department", ["Division", "division.name"], "state",
+                 ["Last Token Issued", "lastTokenIssued.dateIssued"], ["Last Login", "dateLastLogin"]],
+     "help": "Every user in the org, active and inactive, with the date of the last token issued and the last login."},
+
+    {"key": "usersqueues", "label": "All Users + Queues", "section": "directory", "special": "users_queues", "slow": true,
+     "columns": ["name", "username", "email", ["Division", "division.name"], "state", ["Queues", "queues"], ["Skills", "skills.name"]],
+     "help": "One row per user with every queue the user belongs to and the user's skills. Reads every queue's member list, so it takes a while in large orgs."},
+
+    {"key": "usersroles", "label": "All Users + Roles", "section": "directory", "special": "users_roles", "slow": true,
+     "columns": ["name", "username", "email", ["Division", "division.name"], "state", ["Roles", "roles"]],
+     "help": "One row per user with every role granted to the user, for access reviews. Reads the user list of every role."},
+
+    {"key": "externalcontacts", "paging": "cursor", "label": "External Contacts", "section": "directory",
+     "path": "/api/v2/externalcontacts/scan/contacts", "pageSize": 200, "sizeParam": "limit",
+     "columns": ["firstName", "lastName", "title", "workEmail", "personalEmail", ["Work Phone", "workPhone.display"],
+                 ["Cell Phone", "cellPhone.display"], ["City", "address.city"], ["State", "address.state"],
+                 ["Country", "address.countryCode"], ["Organization", "externalOrganization.name"], "modifyDate"],
+     "help": "All external contacts, read with the cursor-based scan API."},
+
+    {"key": "groups", "label": "Groups", "section": "directory", "path": "/api/v2/groups",
+     "columns": ["name", "type", "visibility", "state", "memberCount", "description"],
+     "help": "User groups (official and social), their visibility and member count."},
+
+    {"key": "teams", "paging": "cursor", "label": "Teams", "section": "directory", "path": "/api/v2/teams",
+     "columns": ["name", ["Division", "division.name"], "memberCount", "description", "dateModified"],
+     "help": "Teams and their member count."},
+
+    {"key": "phonenumbers", "label": "Phone Numbers (DIDs)", "section": "telephony",
+     "path": "/api/v2/telephony/providers/edges/dids",
+     "columns": ["phoneNumber", "ownerType", ["Owner", "owner.name"], ["DID Pool", "didPool.name"], "state"],
+     "help": "Every DID and who or what owns it."},
+
+    {"key": "edges", "label": "Edge Devices", "section": "telephony", "path": "/api/v2/telephony/providers/edges",
+     "columns": ["name", ["Site", "site.name"], "onlineStatus", "statusCode", "edgeDeploymentType", "fullSoftwareVersion", "state"],
+     "help": "Edges (physical and virtual) with their site, status and software version."},
+
+    {"key": "sites", "label": "Sites", "section": "telephony", "path": "/api/v2/telephony/providers/edges/sites",
+     "columns": ["name", ["Location", "location.name"], "mediaModel", "managed", "description", "state"],
+     "help": "Telephony sites."},
+
+    {"key": "trunks", "label": "Trunks", "section": "telephony", "path": "/api/v2/telephony/providers/edges/trunks",
+     "columns": ["name", "trunkType", ["Edge", "edge.name"], ["Connected", "connectedStatus.connected"], "inService", "enabled", "state"],
+     "help": "SIP trunks (BYOC and carrier) and whether they are connected."},
+
+    {"key": "flows", "label": "All Flows", "section": "telephony", "path": "/api/v2/flows",
+     "columns": ["name", "type", ["Division", "division.name"], "active", ["Published Version", "publishedVersion.name"], "description"],
+     "help": "Architect flows of every type, with the published version."},
+
+    {"key": "ivrs", "label": "IVR Configurations", "section": "telephony", "path": "/api/v2/architect/ivrs",
+     "columns": ["name", "dnis", ["Open Hours Flow", "openHoursFlow.name"], ["Closed Hours Flow", "closedHoursFlow.name"],
+                 ["Holiday Flow", "holidayHoursFlow.name"], ["Schedule Group", "scheduleGroup.name"], ["Division", "division.name"]],
+     "help": "Call routing: which numbers go to which flow, by schedule."},
+
+    {"key": "schedules", "label": "Schedules", "section": "telephony", "path": "/api/v2/architect/schedules",
+     "columns": ["name", "start", "end", "rrule", ["Division", "division.name"], "description"],
+     "help": "Schedules with their start, end and recurrence rule."},
+
+    {"key": "schedulegroups", "label": "Schedule Groups", "section": "telephony", "path": "/api/v2/architect/schedulegroups",
+     "columns": ["name", "timeZone", ["Open", "openSchedules.name"], ["Closed", "closedSchedules.name"],
+                 ["Holiday", "holidaySchedules.name"], ["Division", "division.name"]],
+     "help": "Schedule groups and the schedules in each."},
+
+    {"key": "emergencygroups", "label": "Emergency Groups", "section": "telephony", "path": "/api/v2/architect/emergencygroups",
+     "columns": ["name", "enabled", ["Division", "division.name"], "description"],
+     "help": "Emergency groups and whether they are on."},
+
+    {"key": "architect_prompts", "label": "User Prompts", "section": "telephony", "path": "/api/v2/architect/prompts",
+     "columns": ["name", ["Languages", "resources.language"], ["Division", "division.name"], "description"],
+     "help": "User prompts and the languages they have resources for."},
+
+    {"key": "flows_milestones", "label": "Flow Milestones", "section": "telephony", "path": "/api/v2/flows/milestones",
+     "columns": ["name", ["Division", "division.name"], "description"],
+     "help": "Flow milestones."},
+
+    {"key": "flows_outcomes", "label": "Flow Outcomes", "section": "telephony", "path": "/api/v2/flows/outcomes",
+     "columns": ["name", ["Division", "division.name"], "description"],
+     "help": "Flow outcomes."},
+
+    {"key": "flows_datatables", "label": "Data Tables", "section": "telephony", "path": "/api/v2/flows/datatables",
+     "columns": ["name", ["Division", "division.name"], "description"],
+     "help": "Architect data tables (the definitions, not the rows)."},
+
+    {"key": "queues", "label": "All Queues", "section": "routing", "path": "/api/v2/routing/queues", "actions": ["members"],
+     "columns": ["name", ["Division", "division.name"], "memberCount", "joinedMemberCount", "scoringMethod",
+                 "skillEvaluationMethod", "dateCreated", "description"],
+     "help": "Queues with their member counts. Right-click a queue to list its members."},
+
+    {"key": "skills", "label": "All Skills", "section": "routing", "path": "/api/v2/routing/skills",
+     "columns": ["name", "state", "dateModified"],
+     "help": "ACD skills."},
+
+    {"key": "wrapupcodes", "label": "Wrap-up Codes", "section": "routing", "path": "/api/v2/routing/wrapupcodes",
+     "columns": ["name", ["Division", "division.name"], "dateCreated", "dateModified"],
+     "help": "Wrap-up codes."},
+
+    {"key": "languages", "label": "Routing Languages", "section": "routing", "path": "/api/v2/routing/languages",
+     "columns": ["name", "state", "dateModified"],
+     "help": "Languages used for language-based routing."},
+
+    {"key": "routing_email_domains", "label": "Email Domains", "section": "routing", "path": "/api/v2/routing/email/domains",
+     "columns": [["Domain", "id"], "name", "subDomain", "mxRecordStatus"],
+     "help": "Inbound email domains and their MX record status."},
+
+    {"key": "routing_sms_addresses", "label": "SMS Addresses", "section": "routing", "path": "/api/v2/routing/sms/addresses",
+     "columns": ["name", "street", "city", "region", "postalCode", "countryCode", "validated"],
+     "help": "Addresses registered for SMS numbers."},
+
+    {"key": "routing_utilization", "label": "Routing Utilization", "section": "routing", "path": "/api/v2/routing/utilization",
+     "kind": "object", "pageSize": null,
+     "help": "Org-wide utilization: how many interactions of each media type an agent can take at once."},
+
+    {"key": "routing_util_labels", "label": "Utilization Labels", "section": "routing", "path": "/api/v2/routing/utilization/labels",
+     "columns": ["name"],
+     "help": "Utilization labels."},
+
+    {"key": "routing_predictors", "paging": "cursor", "label": "Predictors", "section": "routing", "path": "/api/v2/routing/predictors",
+     "columns": ["kpi", "state", ["Queues", "queues.name"], "routingTimeoutSeconds", "dateModified"],
+     "help": "Predictive routing predictors and their queues."},
+
+    {"key": "oauth_clients", "label": "OAuth Clients", "section": "security", "path": "/api/v2/oauth/clients", "pageSize": null,
+     "drop": ["secret"],
+     "columns": ["name", "authorizedGrantType", "state", "accessTokenValiditySeconds", "roleIds", "registeredRedirectUri", "dateCreated"],
+     "help": "OAuth clients, their grant type and token lifetime. Secrets are never shown or exported."},
+
+    {"key": "auth_roles", "label": "Authorization Roles", "section": "security", "path": "/api/v2/authorization/roles",
+     "query": {"userCount": true},
+     "columns": ["name", "userCount", "default", "base", "description", "defaultRoleId"],
+     "help": "Roles with the number of users that hold each one."},
+
+    {"key": "settings", "label": "Organization Settings", "section": "config", "path": "/api/v2/organizations/me",
+     "kind": "object", "pageSize": null,
+     "help": "The organization object: name, domain, default language, features."},
+
+    {"key": "license_users", "label": "License Users", "section": "config", "path": "/api/v2/license/users",
+     "columns": [["User ID", "id"], "licenses"],
+     "help": "Licenses assigned to each user."},
+
+    {"key": "integrations", "label": "All Integrations", "section": "integrations", "path": "/api/v2/integrations",
+     "columns": ["name", ["Type", "integrationType.id"], "intendedState", ["Reported State", "reportedState.code"], "notes"],
+     "help": "Installed integrations and their state."},
+
+    {"key": "messaging_integrations", "label": "Messaging Integrations", "section": "integrations",
+     "path": "/api/v2/conversations/messaging/integrations",
+     "columns": ["name", "messengerType", "status", ["Messaging Setting", "messagingSetting.name"], "dateModified"],
+     "help": "Messaging integrations (WhatsApp, Facebook, Open Messaging, ...)."},
+
+    {"key": "webdeployments", "paging": "cursor", "label": "Web Deployments", "section": "integrations", "path": "/api/v2/webdeployments/deployments",
+     "columns": ["name", "status", "allowAllDomains", "allowedDomains", ["Configuration", "configuration.name"], ["Flow", "flow.name"], "dateModified"],
+     "help": "Web messaging deployments and the domains they accept."},
+
+    {"key": "webdeployment_configs", "paging": "cursor", "label": "Web Deploy Configs", "section": "integrations",
+     "path": "/api/v2/webdeployments/configurations",
+     "columns": ["name", "version", "status", "defaultLanguage", "languages", "datePublished"],
+     "help": "Web messaging configurations."},
+
+    {"key": "quality_eval_forms", "label": "Evaluation Forms", "section": "quality", "path": "/api/v2/quality/forms/evaluations",
+     "columns": ["name", "published", "modifiedDate", "contextId"],
+     "help": "Quality evaluation forms."},
+
+    {"key": "quality_survey_forms", "label": "Survey Forms", "section": "quality", "path": "/api/v2/quality/forms/surveys",
+     "columns": ["name", "published", "disabled", "language", "modifiedDate"],
+     "help": "Survey forms."},
+
+    {"key": "recording_settings", "label": "Recording Settings", "section": "recording", "path": "/api/v2/recording/settings",
+     "kind": "object", "pageSize": null,
+     "help": "Org-wide recording settings."},
+
+    {"key": "recording_keys", "label": "Key Configurations", "section": "recording", "path": "/api/v2/recording/keyconfigurations",
+     "pageSize": null, "drop": ["apiKey"],
+     "columns": ["keyConfigurationType", "url", "apiId", "lastError"],
+     "help": "Recording encryption key configurations (local key manager, AWS KMS). API keys are never shown or exported."},
+
+    {"key": "outbound_campaigns", "label": "Campaigns", "section": "outbound", "path": "/api/v2/outbound/campaigns",
+     "columns": ["name", "campaignStatus", "dialingMode", ["Queue", "queue.name"], ["Contact List", "contactList.name"],
+                 "callerName", "callerAddress", "dateModified"],
+     "help": "Outbound campaigns."},
+
+    {"key": "outbound_contactlists", "label": "Contact Lists", "section": "outbound", "path": "/api/v2/outbound/contactlists",
+     "query": {"includeSize": true},
+     "columns": ["name", "size", "columnNames", ["Phone Columns", "phoneColumns.columnName"], "dateModified"],
+     "help": "Contact lists with their size and columns (not the contacts)."},
+
+    {"key": "outbound_dnclists", "label": "DNC Lists", "section": "outbound", "path": "/api/v2/outbound/dnclists",
+     "query": {"includeSize": true},
+     "columns": ["name", "dncSourceType", "contactMethod", "size", "dateModified"],
+     "help": "Do-not-contact lists."},
+
+    {"key": "outbound_callanalysis", "label": "Call Analysis Resp. Sets", "section": "outbound",
+     "path": "/api/v2/outbound/callanalysisresponsesets",
+     "columns": ["name", "beepDetectionEnabled", "liveSpeakerDetectionMode", "dateModified"],
+     "help": "Call analysis response sets."},
+
+    {"key": "outbound_sequences", "label": "Campaign Sequences", "section": "outbound", "path": "/api/v2/outbound/sequences",
+     "columns": ["name", "status", ["Campaigns", "campaigns.name"], "repeat", "dateModified"],
+     "help": "Campaign sequences."},
+
+    {"key": "wfm_businessunits", "label": "Business Units", "section": "wfm", "path": "/api/v2/workforcemanagement/businessunits",
+     "pageSize": null,
+     "columns": ["name", "authorized", ["Division ID", "division.id"]],
+     "help": "WFM business units."},
+
+    {"key": "wfm_managementunits", "label": "Management Units", "section": "wfm", "path": "/api/v2/workforcemanagement/managementunits",
+     "columns": ["name", "timeZone", "startDayOfWeek", ["Business Unit ID", "businessUnit.id"], ["Division ID", "division.id"]],
+     "help": "WFM management units."},
+
+    {"key": "stations", "label": "Stations", "section": "stations", "path": "/api/v2/stations",
+     "columns": ["name", "type", "status", "userId", "lineAppearanceId", ["Primary Edge", "primaryEdge.name"]],
+     "help": "Stations (phones) and who is on them."},
+
+    {"key": "presence_definitions", "label": "Presence Definitions", "section": "stations", "path": "/api/v2/presencedefinitions",
+     "columns": [["Label", "languageLabels.en_US"], "systemPresence", "primary", "deactivated"],
+     "help": "Presences, system and custom."},
+
+    {"key": "analytics_exports", "label": "Report Exports", "section": "analytics", "path": "/api/v2/analytics/reporting/exports",
+     "columns": ["name", "viewType", "exportFormat", "status", "percentageComplete", "createdDateTime"],
+     "help": "Analytics report exports and their status."},
+
+    {"key": "gamification_profiles", "label": "Performance Profiles", "section": "analytics", "path": "/api/v2/gamification/profiles",
+     "pageSize": null,
+     "columns": ["name", ["Division", "division.name"], "active", "memberCount", "dateCreated"],
+     "help": "Gamification performance profiles."},
+
+    {"key": "gamification_metrics", "label": "Gamification Metrics", "section": "analytics", "special": "profile_metrics",
+     "columns": [["Profile", "profileName"], "name", "metricDefinitionId", "precision", "dateCreated"],
+     "help": "The metrics of every performance profile."},
+
+    {"key": "gamification_metricdefinitions", "label": "Metric Definitions", "section": "analytics",
+     "path": "/api/v2/gamification/metricdefinitions", "pageSize": null,
+     "columns": ["name", "shortName", "unitType"],
+     "help": "Metric definitions available to performance profiles."}
+  ]
+}

@@ -1,0 +1,3105 @@
+{
+ "/api/v2/analytics/reporting/exports": {
+  "fields": {
+   "chartColumns": {
+    "columnType": null,
+    "id": null
+   },
+   "createdDateTime": null,
+   "csvDelimiter": null,
+   "downloadUrl": null,
+   "durationFormat": null,
+   "emailErrorDescription": null,
+   "emailStatuses": null,
+   "enabled": null,
+   "excludeEmptyRows": null,
+   "exportAllowedToRerun": null,
+   "exportErrorMessagesType": null,
+   "exportFormat": null,
+   "filter": {
+    "abandonDurationsMilliseconds": null,
+    "abandoned": null,
+    "acdDurationMilliseconds": null,
+    "acdDurationsMilliseconds": null,
+    "acdPercentage": null,
+    "actionCategoryName": null,
+    "acw": null,
+    "acwDurationsMilliseconds": null,
+    "addressFroms": null,
+    "addressTos": null,
+    "agentCallbackOwnerIds": null,
+    "agentEmpathyScore": null,
+    "agentTalkDurationMilliseconds": null,
+    "agentTalkPercentage": null,
+    "alertRuleIds": null,
+    "aniList": null,
+    "answered": null,
+    "assignedLanguageIds": null,
+    "assignedSkillIds": null,
+    "assistantIds": null,
+    "availableDashboard": null,
+    "blockedReasons": null,
+    "botFinalIntentList": null,
+    "botFlowTypes": null,
+    "botIds": null,
+    "botIntentList": null,
+    "botMessageTypes": null,
+    "botProductList": null,
+    "botProviderList": null,
+    "botRecognitionFailureReasonList": null,
+    "botResultList": null,
+    "botSlotList": null,
+    "botVersions": null,
+    "callbackInterval": null,
+    "callbackNumberList": null,
+    "canonicalContactIds": null,
+    "categoryIds": null,
+    "comparisonQueueIds": null,
+    "conferenced": null,
+    "contactIds": null,
+    "contentModerationFlags": null,
+    "conversationIds": null,
+    "conversationInitiators": null,
+    "conversationProperties": null,
+    "customerSentimentScore": null,
+    "customerSentimentTrend": null,
+    "customerTalkDurationMilliseconds": null,
+    "customerTalkPercentage": null,
+    "dashboardAccessFilter": null,
+    "dashboardState": null,
+    "dashboardType": null,
+    "dataActionIds": null,
+    "deliveryPushed": null,
+    "developmentActivityOverdue": null,
+    "developmentModuleIds": null,
+    "developmentName": null,
+    "developmentRoleList": null,
+    "developmentStatusList": null,
+    "developmentTypeList": null,
+    "directions": null,
+    "divisionIds": null,
+    "dnisList": null,
+    "durationsMilliseconds": null,
+    "emailDeliveryStatusList": null,
+    "empathyScoreCategories": null,
+    "engagementSources": null,
+    "evaluatedAgentIds": null,
+    "evaluationAssigned": null,
+    "evaluationAssigneeIds": null,
+    "evaluationCriticalScore": null,
+    "evaluationFormContextIds": null,
+    "evaluationFormIds": null,
+    "evaluationRole": null,
+    "evaluationScore": null,
+    "evaluationStatuses": null,
+    "evaluatorIds": null,
+    "externalContactIds": null,
+    "externalOrgIds": null,
+    "externalTags": null,
+    "favouriteDashboard": null,
+    "filterQueuesByUserIds": null,
+    "filterUsersByManagerIds": null,
+    "filterUsersByQueueIds": null,
+    "filterUsersByTeamIds": null,
+    "flowDestinationTypes": null,
+    "flowDisconnectReasons": null,
+    "flowEntryReasons": null,
+    "flowEntryTypes": null,
+    "flowIds": null,
+    "flowMilestoneIds": null,
+    "flowOutTypes": null,
+    "flowOutcomeIds": null,
+    "flowOutcomeValues": null,
+    "flowTransferTargets": null,
+    "flowTypes": null,
+    "flowVersions": null,
+    "groupIds": null,
+    "handleDurationsMilliseconds": null,
+    "hasAgentAssistId": null,
+    "hasCustomerParticipated": null,
+    "hasEvaluation": null,
+    "hasFax": null,
+    "hasJourneyActionMapId": null,
+    "hasJourneyCustomerId": null,
+    "hasJourneyVisitId": null,
+    "hasMedia": null,
+    "hasPciData": null,
+    "hasPiiData": null,
+    "hasScoredEvaluation": null,
+    "hasSensitiveData": null,
+    "holdDurationsMilliseconds": null,
+    "integrationIds": null,
+    "isAcdInteraction": null,
+    "isAgentOwnedCallback": null,
+    "isAnalyzedForSensitiveData": null,
+    "isAssessmentPassed": null,
+    "isAuthenticated": null,
+    "isBlindTransferred": null,
+    "isCampaign": null,
+    "isClearedByCustomer": null,
+    "isConsultTransferred": null,
+    "isConsulted": null,
+    "isEnded": null,
+    "isNotResponding": null,
+    "isParked": null,
+    "isRecorded": null,
+    "isScreenRecorded": null,
+    "isSnippetRecorded": null,
+    "isSurveyed": null,
+    "ivrDurationMilliseconds": null,
+    "ivrPercentage": null,
+    "journeyActionMapIds": null,
+    "journeyActionMapTypes": null,
+    "journeyActionTargetIds": null,
+    "journeyBlockingActionMapIds": null,
+    "journeyBlockingEmergencyScheduleGroupIds": null,
+    "journeyBlockingScheduleGroupIds": null,
+    "journeyFrequencyCapReasons": null,
+    "journeyOutcomeIds": null,
+    "journeySegmentIds": null,
+    "journeyUrlContainsAllConditions": null,
+    "journeyUrlContainsAnyConditions": null,
+    "journeyUrlEndsWithConditions": null,
+    "journeyUrlEqualConditions": null,
+    "journeyUrlNotContainsAllConditions": null,
+    "journeyUrlNotContainsAnyConditions": null,
+    "journeyUrlNotEqualConditions": null,
+    "journeyUrlStartsWithConditions": null,
+    "knowledgeBaseIds": null,
+    "languageGroups": null,
+    "languageIds": null,
+    "linkedInteraction": null,
+    "locationIds": null,
+    "managementUnitIds": null,
+    "mediaTypes": null,
+    "messageTypes": null,
+    "mos": null,
+    "myDashboard": null,
+    "originatingDirections": null,
+    "otherDurationMilliseconds": null,
+    "otherPercentage": null,
+    "outboundCampaignIds": null,
+    "outboundContactListIds": null,
+    "overtalkDurationMilliseconds": null,
+    "overtalkInstances": null,
+    "overtalkPercentage": null,
+    "participantPurposes": null,
+    "programIds": null,
+    "promoterScores": null,
+    "providerList": null,
+    "queueIds": null,
+    "recommendationSources": null,
+    "remoteParticipants": null,
+    "reportsTos": null,
+    "requestedRoutingTypes": null,
+    "responseStatuses": null,
+    "roleIds": null,
+    "screenMonitorUserIds": null,
+    "screenMonitored": null,
+    "segmentTypes": null,
+    "sentimentScoreCategories": null,
+    "sentimentTrendCategories": null,
+    "sessionDnisList": null,
+    "sessionExpired": null,
+    "showFirstQueue": null,
+    "silenceDurationMilliseconds": null,
+    "silencePercentage": null,
+    "sipCallIds": null,
+    "skillGroups": null,
+    "skillIds": null,
+    "slideshowIds": null,
+    "socialChannels": null,
+    "socialClassifications": null,
+    "socialContentType": null,
+    "socialConversationCreated": null,
+    "socialCountries": null,
+    "socialEngagementComments": null,
+    "socialEngagementLikes": null,
+    "socialEngagementReposts": null,
+    "socialEngagementSaves": null,
+    "socialEngagementShares": null,
+    "socialEngagementViews": null,
+    "socialFollowerRange": null,
+    "socialIngestionRuleIds": null,
+    "socialKeywords": null,
+    "socialLanguages": null,
+    "socialPostEscalated": null,
+    "socialPostTypes": null,
+    "socialRatings": null,
+    "socialSentimentCategory": null,
+    "socialSourceTypes": null,
+    "socialTopicIds": null,
+    "socialVerificationStatus": null,
+    "stationErrors": null,
+    "subPath": null,
+    "surveyFormContextIds": null,
+    "surveyFormIds": null,
+    "surveyNpsScore": null,
+    "surveyPromoterScore": null,
+    "surveyQuestionGroupScore": null,
+    "surveyResponseStatuses": null,
+    "surveyScores": null,
+    "surveyStatuses": null,
+    "surveyTotalScore": null,
+    "surveyTypes": null,
+    "takeover": null,
+    "talkDurationsMilliseconds": null,
+    "teamIds": null,
+    "timelineCategories": null,
+    "topicIds": null,
+    "transcriptDurationMilliseconds": null,
+    "transcriptLanguages": null,
+    "transcriptTopics": null,
+    "transcripts": null,
+    "transferred": null,
+    "usedRoutingTypes": null,
+    "userIds": null,
+    "userState": null,
+    "video": null,
+    "viewMetrics": null,
+    "virtualAgentIds": null,
+    "workbinIds": null,
+    "workitemAssigneeIds": null,
+    "workitemIds": null,
+    "workitemStatuses": null,
+    "workitemsStatuses": null,
+    "worktypeIds": null,
+    "wrapUpCodes": null
+   },
+   "hasCustomParticipantAttributes": null,
+   "hasFormatDurations": null,
+   "hasSplitByMedia": null,
+   "hasSplitFilters": null,
+   "hasSummaryRow": null,
+   "id": null,
+   "includeDurationFormatInHeader": null,
+   "interval": null,
+   "locale": null,
+   "modifiedDateTime": null,
+   "name": null,
+   "percentageComplete": null,
+   "period": null,
+   "read": null,
+   "recipientEmails": null,
+   "runId": null,
+   "selectedColumns": {
+    "columnName": null,
+    "columnOrder": null
+   },
+   "selfUri": null,
+   "status": null,
+   "timeZone": null,
+   "viewType": null
+  },
+  "kind": "list",
+  "model": "ReportingExportJobResponse"
+ },
+ "/api/v2/architect/emergencygroups": {
+  "fields": {
+   "createdBy": null,
+   "createdByApp": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "emergencyCallFlows": {
+    "emergencyFlow": null,
+    "ivrs": null
+   },
+   "enabled": null,
+   "id": null,
+   "modifiedBy": null,
+   "modifiedByApp": null,
+   "name": null,
+   "selfUri": null,
+   "state": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "EmergencyGroup"
+ },
+ "/api/v2/architect/ivrs": {
+  "fields": {
+   "closedHoursFlow": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "createdBy": null,
+   "createdByApp": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "dnis": null,
+   "holidayHoursFlow": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "modifiedBy": null,
+   "modifiedByApp": null,
+   "name": null,
+   "openHoursFlow": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "scheduleGroup": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "selfUri": null,
+   "state": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "IVR"
+ },
+ "/api/v2/architect/prompts": {
+  "fields": {
+   "currentOperation": {
+    "actionName": null,
+    "actionStatus": null,
+    "client": null,
+    "complete": null,
+    "errorCode": null,
+    "errorDetails": null,
+    "errorMessage": null,
+    "errorMessageParams": null,
+    "id": null,
+    "user": null
+   },
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "name": null,
+   "resources": {
+    "audioFormat": null,
+    "durationSeconds": null,
+    "id": null,
+    "language": null,
+    "languageDefault": null,
+    "mediaUri": null,
+    "name": null,
+    "promptId": null,
+    "selfUri": null,
+    "tags": null,
+    "text": null,
+    "ttsString": null,
+    "uploadStatus": null,
+    "uploadUri": null
+   },
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "Prompt"
+ },
+ "/api/v2/architect/schedulegroups": {
+  "fields": {
+   "closedSchedules": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "createdBy": null,
+   "createdByApp": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "holidaySchedules": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "modifiedBy": null,
+   "modifiedByApp": null,
+   "name": null,
+   "openSchedules": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "selfUri": null,
+   "state": null,
+   "timeZone": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "ScheduleGroup"
+ },
+ "/api/v2/architect/schedules": {
+  "fields": {
+   "createdBy": null,
+   "createdByApp": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "end": null,
+   "id": null,
+   "modifiedBy": null,
+   "modifiedByApp": null,
+   "name": null,
+   "rrule": null,
+   "selfUri": null,
+   "start": null,
+   "state": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "Schedule"
+ },
+ "/api/v2/authorization/roles": {
+  "fields": {
+   "addonLicenses": null,
+   "base": null,
+   "baseLicense": null,
+   "dateLicenseLastUpdated": null,
+   "default": null,
+   "defaultRoleId": null,
+   "description": null,
+   "id": null,
+   "name": null,
+   "permissionPolicies": {
+    "actionSet": null,
+    "allowConditions": null,
+    "domain": null,
+    "entityName": null,
+    "namedResources": null,
+    "policyDescription": null,
+    "policyName": null,
+    "resourceConditionNode": null
+   },
+   "permissions": null,
+   "roleNeedsUpdate": null,
+   "selfUri": null,
+   "unusedPermissions": null,
+   "userCount": null
+  },
+  "kind": "list",
+  "model": "DomainOrganizationRole"
+ },
+ "/api/v2/authorization/roles/{roleId}/users": {
+  "fields": {
+   "id": null,
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "UserReference"
+ },
+ "/api/v2/conversations/messaging/integrations": {
+  "fields": {
+   "createdBy": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "dateCreated": null,
+   "dateModified": null,
+   "id": null,
+   "messagingSetting": {
+    "content": null,
+    "createdBy": null,
+    "dateCreated": null,
+    "dateModified": null,
+    "event": null,
+    "id": null,
+    "name": null,
+    "selfUri": null,
+    "updatedBy": null,
+    "version": null
+   },
+   "messengerType": null,
+   "modifiedBy": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "name": null,
+   "openExtensionType": null,
+   "recipient": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "selfUri": null,
+   "status": null,
+   "supportedContent": {
+    "id": null,
+    "mediaTypes": null,
+    "name": null,
+    "selfUri": null
+   },
+   "version": null
+  },
+  "kind": "list",
+  "model": "MessagingIntegration"
+ },
+ "/api/v2/externalcontacts/scan/contacts": {
+  "fields": {
+   "address": {
+    "address1": null,
+    "address2": null,
+    "city": null,
+    "countryCode": null,
+    "postalCode": null,
+    "state": null
+   },
+   "appleOpaqueIds": {
+    "value": null
+   },
+   "canonicalContact": {
+    "id": null,
+    "selfUri": null
+   },
+   "cellPhone": {
+    "acceptsSMS": null,
+    "countryCode": null,
+    "display": null,
+    "e164": null,
+    "extension": null,
+    "normalizationCountryCode": null,
+    "userInput": null
+   },
+   "createDate": null,
+   "customFields": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "externalDataSources": {
+    "platform": null,
+    "url": null
+   },
+   "externalIds": {
+    "externalSource": null,
+    "value": null
+   },
+   "externalOrganization": {
+    "address": null,
+    "companyType": null,
+    "createDate": null,
+    "customFields": null,
+    "division": null,
+    "employeeCount": null,
+    "externalDataSources": null,
+    "externalIds": null,
+    "externalSystemUrl": null,
+    "faxNumber": null,
+    "id": null,
+    "identifiers": null,
+    "industry": null,
+    "modifyDate": null,
+    "name": null,
+    "phoneNumber": null,
+    "revenue": null,
+    "schema": null,
+    "selfUri": null,
+    "tags": null,
+    "tickers": null,
+    "trustor": null,
+    "twitterId": null,
+    "websites": null
+   },
+   "externalSystemUrl": null,
+   "facebookId": {
+    "displayName": null,
+    "ids": null
+   },
+   "firstName": null,
+   "homePhone": {
+    "acceptsSMS": null,
+    "countryCode": null,
+    "display": null,
+    "e164": null,
+    "extension": null,
+    "normalizationCountryCode": null,
+    "userInput": null
+   },
+   "id": null,
+   "identifiers": {
+    "dateCreated": null,
+    "division": null,
+    "externalSource": null,
+    "type": null,
+    "value": null
+   },
+   "instagramId": {
+    "displayName": null,
+    "handle": null,
+    "ids": null
+   },
+   "lastName": null,
+   "lineId": {
+    "displayName": null,
+    "ids": null
+   },
+   "mergeOperation": {
+    "resultingContact": null,
+    "sourceContact": null,
+    "targetContact": null
+   },
+   "mergeSet": {
+    "id": null,
+    "selfUri": null
+   },
+   "mergedFrom": {
+    "id": null,
+    "selfUri": null
+   },
+   "mergedTo": {
+    "id": null,
+    "selfUri": null
+   },
+   "middleName": null,
+   "modifyDate": null,
+   "otherEmail": null,
+   "otherPhone": {
+    "acceptsSMS": null,
+    "countryCode": null,
+    "display": null,
+    "e164": null,
+    "extension": null,
+    "normalizationCountryCode": null,
+    "userInput": null
+   },
+   "personalEmail": null,
+   "salutation": null,
+   "schema": {
+    "appliesTo": null,
+    "createdBy": null,
+    "dateCreated": null,
+    "enabled": null,
+    "id": null,
+    "jsonSchema": null,
+    "name": null,
+    "selfUri": null,
+    "version": null
+   },
+   "selfUri": null,
+   "surveyOptOut": null,
+   "title": null,
+   "twitterId": {
+    "id": null,
+    "name": null,
+    "profileUrl": null,
+    "screenName": null,
+    "verified": null
+   },
+   "type": null,
+   "whatsAppId": {
+    "displayName": null,
+    "phoneNumber": null
+   },
+   "workEmail": null,
+   "workPhone": {
+    "acceptsSMS": null,
+    "countryCode": null,
+    "display": null,
+    "e164": null,
+    "extension": null,
+    "normalizationCountryCode": null,
+    "userInput": null
+   }
+  },
+  "kind": "list",
+  "model": "ExternalContact"
+ },
+ "/api/v2/flows": {
+  "fields": {
+   "active": null,
+   "checkedInVersion": {
+    "commitVersion": null,
+    "compatibleFlowTypes": null,
+    "configurationUri": null,
+    "configurationVersion": null,
+    "createdBy": null,
+    "createdByClient": null,
+    "dateCheckedIn": null,
+    "dateCreated": null,
+    "datePublished": null,
+    "datePublishedEnd": null,
+    "dateSaved": null,
+    "debug": null,
+    "generationId": null,
+    "id": null,
+    "inputSchema": null,
+    "name": null,
+    "nluInfo": null,
+    "outputSchema": null,
+    "publishResultUri": null,
+    "secure": null,
+    "selfUri": null,
+    "supportedLanguages": null,
+    "type": null,
+    "virtualAgentEnabled": null
+   },
+   "compatibleFlowTypes": null,
+   "currentOperation": {
+    "actionName": null,
+    "actionStatus": null,
+    "client": null,
+    "complete": null,
+    "errorCode": null,
+    "errorDetails": null,
+    "errorMessage": null,
+    "errorMessageParams": null,
+    "id": null,
+    "user": null
+   },
+   "debugVersion": {
+    "commitVersion": null,
+    "compatibleFlowTypes": null,
+    "configurationUri": null,
+    "configurationVersion": null,
+    "createdBy": null,
+    "createdByClient": null,
+    "dateCheckedIn": null,
+    "dateCreated": null,
+    "datePublished": null,
+    "datePublishedEnd": null,
+    "dateSaved": null,
+    "debug": null,
+    "generationId": null,
+    "id": null,
+    "inputSchema": null,
+    "name": null,
+    "nluInfo": null,
+    "outputSchema": null,
+    "publishResultUri": null,
+    "secure": null,
+    "selfUri": null,
+    "supportedLanguages": null,
+    "type": null,
+    "virtualAgentEnabled": null
+   },
+   "deleted": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "inputSchema": null,
+   "lockedClient": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "lockedUser": {
+    "acdAutoAnswer": null,
+    "addresses": null,
+    "authorization": null,
+    "biography": null,
+    "certifications": null,
+    "chat": null,
+    "conversationSummary": null,
+    "dateLastLogin": null,
+    "dateWelcomeSent": null,
+    "department": null,
+    "division": null,
+    "email": null,
+    "employerInfo": null,
+    "geolocation": null,
+    "groups": null,
+    "id": null,
+    "images": null,
+    "integrationPresence": null,
+    "languagePreference": null,
+    "languages": null,
+    "lastTokenIssued": null,
+    "locations": null,
+    "manager": null,
+    "name": null,
+    "outOfOffice": null,
+    "preferredName": null,
+    "presence": null,
+    "primaryContactInfo": null,
+    "profileSkills": null,
+    "routingStatus": null,
+    "selfUri": null,
+    "skills": null,
+    "state": null,
+    "station": null,
+    "team": null,
+    "title": null,
+    "username": null,
+    "version": null,
+    "workPlanBidRanks": null
+   },
+   "name": null,
+   "nluInfo": {
+    "domain": null,
+    "engineVersion": null,
+    "intents": null,
+    "nluData": null,
+    "version": null
+   },
+   "outputSchema": null,
+   "publishedBy": {
+    "acdAutoAnswer": null,
+    "addresses": null,
+    "authorization": null,
+    "biography": null,
+    "certifications": null,
+    "chat": null,
+    "conversationSummary": null,
+    "dateLastLogin": null,
+    "dateWelcomeSent": null,
+    "department": null,
+    "division": null,
+    "email": null,
+    "employerInfo": null,
+    "geolocation": null,
+    "groups": null,
+    "id": null,
+    "images": null,
+    "integrationPresence": null,
+    "languagePreference": null,
+    "languages": null,
+    "lastTokenIssued": null,
+    "locations": null,
+    "manager": null,
+    "name": null,
+    "outOfOffice": null,
+    "preferredName": null,
+    "presence": null,
+    "primaryContactInfo": null,
+    "profileSkills": null,
+    "routingStatus": null,
+    "selfUri": null,
+    "skills": null,
+    "state": null,
+    "station": null,
+    "team": null,
+    "title": null,
+    "username": null,
+    "version": null,
+    "workPlanBidRanks": null
+   },
+   "publishedVersion": {
+    "commitVersion": null,
+    "compatibleFlowTypes": null,
+    "configurationUri": null,
+    "configurationVersion": null,
+    "createdBy": null,
+    "createdByClient": null,
+    "dateCheckedIn": null,
+    "dateCreated": null,
+    "datePublished": null,
+    "datePublishedEnd": null,
+    "dateSaved": null,
+    "debug": null,
+    "generationId": null,
+    "id": null,
+    "inputSchema": null,
+    "name": null,
+    "nluInfo": null,
+    "outputSchema": null,
+    "publishResultUri": null,
+    "secure": null,
+    "selfUri": null,
+    "supportedLanguages": null,
+    "type": null,
+    "virtualAgentEnabled": null
+   },
+   "savedVersion": {
+    "commitVersion": null,
+    "compatibleFlowTypes": null,
+    "configurationUri": null,
+    "configurationVersion": null,
+    "createdBy": null,
+    "createdByClient": null,
+    "dateCheckedIn": null,
+    "dateCreated": null,
+    "datePublished": null,
+    "datePublishedEnd": null,
+    "dateSaved": null,
+    "debug": null,
+    "generationId": null,
+    "id": null,
+    "inputSchema": null,
+    "name": null,
+    "nluInfo": null,
+    "outputSchema": null,
+    "publishResultUri": null,
+    "secure": null,
+    "selfUri": null,
+    "supportedLanguages": null,
+    "type": null,
+    "virtualAgentEnabled": null
+   },
+   "selfUri": null,
+   "supportedLanguages": {
+    "isDefault": null,
+    "language": null
+   },
+   "system": null,
+   "type": null,
+   "virtualAgentEnabled": null,
+   "worktypeId": null
+  },
+  "kind": "list",
+  "model": "Flow"
+ },
+ "/api/v2/flows/datatables": {
+  "fields": {
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "name": null,
+   "schema": {
+    "$schema": null,
+    "additionalProperties": null,
+    "description": null,
+    "id": null,
+    "properties": null,
+    "required": null,
+    "title": null,
+    "type": null
+   },
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "DataTable"
+ },
+ "/api/v2/flows/milestones": {
+  "fields": {
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "name": null,
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "FlowMilestone"
+ },
+ "/api/v2/flows/outcomes": {
+  "fields": {
+   "currentOperation": {
+    "actionName": null,
+    "actionStatus": null,
+    "client": null,
+    "complete": null,
+    "errorCode": null,
+    "errorDetails": null,
+    "errorMessage": null,
+    "errorMessageParams": null,
+    "id": null,
+    "user": null
+   },
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "name": null,
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "FlowOutcome"
+ },
+ "/api/v2/gamification/metricdefinitions": {
+  "fields": {
+   "defaultObjective": {
+    "enabled": null,
+    "evaluationFormContextIds": null,
+    "id": null,
+    "initialDirection": null,
+    "mediaTypes": null,
+    "queues": null,
+    "templateId": null,
+    "topicIdsFilterType": null,
+    "topics": null,
+    "zones": null
+   },
+   "dividendMetrics": null,
+   "divisorMetrics": null,
+   "id": null,
+   "initialDirectionFilteringAllowed": null,
+   "lockTemplateId": null,
+   "mediaTypeFilteringAllowed": null,
+   "name": null,
+   "queueFilteringAllowed": null,
+   "selfUri": null,
+   "shortName": null,
+   "unitType": null
+  },
+  "kind": "list",
+  "model": "MetricDefinition"
+ },
+ "/api/v2/gamification/profiles": {
+  "fields": {
+   "active": null,
+   "dateCreated": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "maxLeaderboardRankSize": null,
+   "memberCount": null,
+   "metricOrders": null,
+   "name": null,
+   "reportingIntervals": {
+    "intervalType": null,
+    "intervalValue": null
+   },
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "PerformanceProfile"
+ },
+ "/api/v2/gamification/profiles/{profileId}/metrics": {
+  "fields": {
+   "dateCreated": null,
+   "dateUnlinked": null,
+   "externalMetricDefinitionId": null,
+   "id": null,
+   "linkedMetric": {
+    "id": null,
+    "selfUri": null
+   },
+   "metricDefinitionId": null,
+   "name": null,
+   "objective": {
+    "dateStart": null,
+    "enabled": null,
+    "evaluationFormContextIds": null,
+    "id": null,
+    "initialDirection": null,
+    "mediaTypes": null,
+    "queues": null,
+    "templateId": null,
+    "topicIdsFilterType": null,
+    "topics": null,
+    "zones": null
+   },
+   "performanceProfileId": null,
+   "precision": null,
+   "selfUri": null,
+   "sourcePerformanceProfile": {
+    "active": null,
+    "dateCreated": null,
+    "description": null,
+    "division": null,
+    "id": null,
+    "maxLeaderboardRankSize": null,
+    "memberCount": null,
+    "metricOrders": null,
+    "name": null,
+    "reportingIntervals": null,
+    "selfUri": null
+   },
+   "timeDisplayUnit": null
+  },
+  "kind": "list",
+  "model": "Metric"
+ },
+ "/api/v2/groups": {
+  "fields": {
+   "addresses": {
+    "address": null,
+    "display": null,
+    "extension": null,
+    "mediaType": null,
+    "type": null
+   },
+   "callsEnabled": null,
+   "dateModified": null,
+   "description": null,
+   "email": null,
+   "id": null,
+   "images": {
+    "imageUri": null,
+    "resolution": null
+   },
+   "includeOwners": null,
+   "memberCount": null,
+   "name": null,
+   "owners": {
+    "acdAutoAnswer": null,
+    "addresses": null,
+    "authorization": null,
+    "biography": null,
+    "certifications": null,
+    "chat": null,
+    "conversationSummary": null,
+    "dateLastLogin": null,
+    "dateWelcomeSent": null,
+    "department": null,
+    "division": null,
+    "email": null,
+    "employerInfo": null,
+    "geolocation": null,
+    "groups": null,
+    "id": null,
+    "images": null,
+    "integrationPresence": null,
+    "languagePreference": null,
+    "languages": null,
+    "lastTokenIssued": null,
+    "locations": null,
+    "manager": null,
+    "name": null,
+    "outOfOffice": null,
+    "preferredName": null,
+    "presence": null,
+    "primaryContactInfo": null,
+    "profileSkills": null,
+    "routingStatus": null,
+    "selfUri": null,
+    "skills": null,
+    "state": null,
+    "station": null,
+    "team": null,
+    "title": null,
+    "username": null,
+    "version": null,
+    "workPlanBidRanks": null
+   },
+   "rolesEnabled": null,
+   "rulesVisible": null,
+   "selfUri": null,
+   "state": null,
+   "type": null,
+   "version": null,
+   "visibility": null
+  },
+  "kind": "list",
+  "model": "Group"
+ },
+ "/api/v2/integrations": {
+  "fields": {
+   "attributes": null,
+   "config": {
+    "current": null
+   },
+   "id": null,
+   "integrationType": {
+    "category": null,
+    "configAdvancedSchemaUri": null,
+    "configPropertiesSchemaUri": null,
+    "credentials": null,
+    "description": null,
+    "faqUri": null,
+    "helpLinks": null,
+    "helpUri": null,
+    "id": null,
+    "images": null,
+    "marketplaceUri": null,
+    "maxInstances": null,
+    "name": null,
+    "nonInstallable": null,
+    "privacyPolicyUri": null,
+    "provider": null,
+    "salesContactUri": null,
+    "selfUri": null,
+    "supportContactUri": null,
+    "termsOfServiceUri": null,
+    "userPermissions": null,
+    "vendorName": null,
+    "vendorOAuthClientIds": null,
+    "vendorWebsiteUri": null
+   },
+   "intendedState": null,
+   "name": null,
+   "notes": null,
+   "reportedState": {
+    "code": null,
+    "detail": null,
+    "effective": null,
+    "lastUpdated": null
+   },
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "Integration"
+ },
+ "/api/v2/license/users": {
+  "fields": {
+   "id": null,
+   "licenses": null,
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "UserLicenses"
+ },
+ "/api/v2/oauth/clients": {
+  "fields": {
+   "accessTokenValiditySeconds": null,
+   "authorizedGrantType": null,
+   "createdBy": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "dateCreated": null,
+   "dateModified": null,
+   "dateToDelete": null,
+   "description": null,
+   "id": null,
+   "modifiedBy": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "name": null,
+   "registeredRedirectUri": null,
+   "roleDivisions": {
+    "divisionId": null,
+    "roleId": null
+   },
+   "roleIds": null,
+   "scope": null,
+   "secret": null,
+   "selfUri": null,
+   "state": null
+  },
+  "kind": "list",
+  "model": "OAuthClient"
+ },
+ "/api/v2/organizations/me": {
+  "fields": {
+   "defaultCountryCode": null,
+   "defaultLanguage": null,
+   "defaultSiteId": null,
+   "domain": null,
+   "features": null,
+   "id": null,
+   "name": null,
+   "productPlatform": null,
+   "selfUri": null,
+   "state": null,
+   "supportURI": null,
+   "thirdPartyOrgName": null,
+   "thirdPartyURI": null,
+   "version": null,
+   "voicemailEnabled": null
+  },
+  "kind": "object",
+  "model": "Organization"
+ },
+ "/api/v2/outbound/callanalysisresponsesets": {
+  "fields": {
+   "amdSpeechDistinguishEnabled": null,
+   "beepDetectionEnabled": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "id": null,
+   "liveSpeakerDetectionMode": null,
+   "name": null,
+   "responses": null,
+   "selfUri": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "ResponseSet"
+ },
+ "/api/v2/outbound/campaigns": {
+  "fields": {
+   "abandonRate": null,
+   "agentOwnedColumn": null,
+   "alwaysRunning": null,
+   "callAnalysisLanguage": null,
+   "callAnalysisResponseSet": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "callableTimeSet": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "callbackAutoAnswer": null,
+   "callerAddress": null,
+   "callerName": null,
+   "campaignStatus": null,
+   "contactList": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "contactListFilters": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "contactSort": {
+    "direction": null,
+    "fieldName": null,
+    "numeric": null
+   },
+   "contactSorts": {
+    "direction": null,
+    "fieldName": null,
+    "numeric": null
+   },
+   "dateCreated": null,
+   "dateModified": null,
+   "diagnosticsSettings": {
+    "reportLowMaxCallsPerAgentAlert": null
+   },
+   "dialingMode": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "dncLists": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "dynamicContactQueueingSettings": {
+    "filter": null,
+    "sort": null
+   },
+   "dynamicLineBalancingSettings": {
+    "enabled": null,
+    "relativeWeight": null
+   },
+   "edgeGroup": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "errors": {
+    "details": null,
+    "error": null,
+    "userParams": null
+   },
+   "id": null,
+   "maxCallsPerAgent": null,
+   "maxCallsPerAgentDecimal": null,
+   "name": null,
+   "noAnswerTimeout": null,
+   "outboundLineCount": null,
+   "phoneColumns": {
+    "columnName": null,
+    "type": null
+   },
+   "preciseDialingEnabled": null,
+   "previewAutoEnd": null,
+   "previewTimeOutSeconds": null,
+   "priority": null,
+   "queue": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "ruleSets": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "script": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "selfUri": null,
+   "site": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "skillColumns": null,
+   "skipPreviewDisabled": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "Campaign"
+ },
+ "/api/v2/outbound/contactlists": {
+  "fields": {
+   "attemptLimits": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "automaticTimeZoneMapping": null,
+   "columnDataTypeSpecifications": {
+    "columnDataType": null,
+    "columnName": null,
+    "max": null,
+    "maxLength": null,
+    "min": null
+   },
+   "columnNames": null,
+   "dateCreated": null,
+   "dateExpiration": null,
+   "dateModified": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "emailColumns": {
+    "columnName": null,
+    "contactableTimeColumn": null,
+    "contactableTimeColumnName": null,
+    "type": null
+   },
+   "id": null,
+   "importStatus": {
+    "completedRecords": null,
+    "failureReason": null,
+    "listNamePrefix": null,
+    "percentComplete": null,
+    "state": null,
+    "targetContactListIds": null,
+    "totalRecords": null
+   },
+   "name": null,
+   "phoneColumns": {
+    "callableTimeColumn": null,
+    "callableTimeColumnName": null,
+    "columnName": null,
+    "type": null
+   },
+   "previewModeAcceptedValues": null,
+   "previewModeColumnName": null,
+   "retentionDays": null,
+   "retentionType": null,
+   "selfUri": null,
+   "size": null,
+   "timeZone": null,
+   "trimWhitespace": null,
+   "version": null,
+   "whatsAppColumns": {
+    "columnName": null,
+    "contactableTimeColumn": null,
+    "contactableTimeColumnName": null,
+    "type": null
+   },
+   "zipCodeColumnName": null
+  },
+  "kind": "list",
+  "model": "ContactList"
+ },
+ "/api/v2/outbound/dnclists": {
+  "fields": {
+   "campaignId": null,
+   "contactMethod": null,
+   "customExclusionColumn": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "dncCodes": null,
+   "dncSourceType": null,
+   "id": null,
+   "importStatus": {
+    "completedRecords": null,
+    "failureReason": null,
+    "listNamePrefix": null,
+    "percentComplete": null,
+    "state": null,
+    "targetContactListIds": null,
+    "totalRecords": null
+   },
+   "licenseId": null,
+   "loginId": null,
+   "name": null,
+   "selfUri": null,
+   "size": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "DncList"
+ },
+ "/api/v2/outbound/sequences": {
+  "fields": {
+   "campaigns": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "currentCampaign": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "id": null,
+   "name": null,
+   "repeat": null,
+   "selfUri": null,
+   "status": null,
+   "stopMessage": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "CampaignSequence"
+ },
+ "/api/v2/presencedefinitions": {
+  "fields": {
+   "createdBy": {
+    "acdAutoAnswer": null,
+    "addresses": null,
+    "authorization": null,
+    "biography": null,
+    "certifications": null,
+    "chat": null,
+    "conversationSummary": null,
+    "dateLastLogin": null,
+    "dateWelcomeSent": null,
+    "department": null,
+    "division": null,
+    "email": null,
+    "employerInfo": null,
+    "geolocation": null,
+    "groups": null,
+    "id": null,
+    "images": null,
+    "integrationPresence": null,
+    "languagePreference": null,
+    "languages": null,
+    "lastTokenIssued": null,
+    "locations": null,
+    "manager": null,
+    "name": null,
+    "outOfOffice": null,
+    "preferredName": null,
+    "presence": null,
+    "primaryContactInfo": null,
+    "profileSkills": null,
+    "routingStatus": null,
+    "selfUri": null,
+    "skills": null,
+    "state": null,
+    "station": null,
+    "team": null,
+    "title": null,
+    "username": null,
+    "version": null,
+    "workPlanBidRanks": null
+   },
+   "createdDate": null,
+   "deactivated": null,
+   "id": null,
+   "languageLabels": null,
+   "modifiedBy": {
+    "acdAutoAnswer": null,
+    "addresses": null,
+    "authorization": null,
+    "biography": null,
+    "certifications": null,
+    "chat": null,
+    "conversationSummary": null,
+    "dateLastLogin": null,
+    "dateWelcomeSent": null,
+    "department": null,
+    "division": null,
+    "email": null,
+    "employerInfo": null,
+    "geolocation": null,
+    "groups": null,
+    "id": null,
+    "images": null,
+    "integrationPresence": null,
+    "languagePreference": null,
+    "languages": null,
+    "lastTokenIssued": null,
+    "locations": null,
+    "manager": null,
+    "name": null,
+    "outOfOffice": null,
+    "preferredName": null,
+    "presence": null,
+    "primaryContactInfo": null,
+    "profileSkills": null,
+    "routingStatus": null,
+    "selfUri": null,
+    "skills": null,
+    "state": null,
+    "station": null,
+    "team": null,
+    "title": null,
+    "username": null,
+    "version": null,
+    "workPlanBidRanks": null
+   },
+   "modifiedDate": null,
+   "name": null,
+   "primary": null,
+   "selfUri": null,
+   "systemPresence": null
+  },
+  "kind": "list",
+  "model": "OrganizationPresence"
+ },
+ "/api/v2/quality/forms/evaluations": {
+  "fields": {
+   "aiScoring": {
+    "id": null,
+    "questionGroupSettings": null,
+    "selfUri": null
+   },
+   "contextId": null,
+   "dialect": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "evaluationSettings": {
+    "disputesAllowedPerEvaluation": null,
+    "disputesAssignees": null,
+    "disputesEnabled": null,
+    "revisionsEnabled": null
+   },
+   "id": null,
+   "latestVersionFormName": null,
+   "modifiedDate": null,
+   "name": null,
+   "published": null,
+   "publishedVersions": {
+    "entities": null,
+    "firstUri": null,
+    "lastUri": null,
+    "nextUri": null,
+    "pageCount": null,
+    "pageNumber": null,
+    "pageSize": null,
+    "previousUri": null,
+    "selfUri": null,
+    "total": null
+   },
+   "questionGroups": {
+    "contextId": null,
+    "defaultAnswersTo": null,
+    "defaultAnswersToHighest": null,
+    "defaultAnswersToNA": null,
+    "id": null,
+    "manualWeight": null,
+    "naEnabled": null,
+    "name": null,
+    "questions": null,
+    "type": null,
+    "visibilityCondition": null,
+    "weight": null
+   },
+   "selfUri": null,
+   "weightMode": null
+  },
+  "kind": "list",
+  "model": "EvaluationFormResponse"
+ },
+ "/api/v2/quality/forms/surveys": {
+  "fields": {
+   "contextId": null,
+   "disabled": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "footer": null,
+   "header": null,
+   "id": null,
+   "language": null,
+   "modifiedDate": null,
+   "name": null,
+   "published": null,
+   "publishedVersions": {
+    "entities": null,
+    "firstUri": null,
+    "lastUri": null,
+    "nextUri": null,
+    "pageCount": null,
+    "pageNumber": null,
+    "pageSize": null,
+    "previousUri": null,
+    "selfUri": null,
+    "total": null
+   },
+   "questionGroups": {
+    "contextId": null,
+    "id": null,
+    "naEnabled": null,
+    "name": null,
+    "questions": null,
+    "type": null,
+    "visibilityCondition": null
+   },
+   "redacted": null,
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "SurveyForm"
+ },
+ "/api/v2/recording/keyconfigurations": {
+  "fields": {
+   "apiId": null,
+   "apiKey": null,
+   "id": null,
+   "keyConfigurationType": null,
+   "lastError": {
+    "code": null,
+    "contextId": null,
+    "details": null,
+    "entityId": null,
+    "entityName": null,
+    "errors": null,
+    "limit": null,
+    "message": null,
+    "messageParams": null,
+    "messageWithParams": null,
+    "status": null
+   },
+   "selfUri": null,
+   "url": null
+  },
+  "kind": "list",
+  "model": "RecordingEncryptionConfiguration"
+ },
+ "/api/v2/recording/settings": {
+  "fields": {
+   "maxConfigurableScreenRecordingStreams": null,
+   "maxSimultaneousStreams": null,
+   "recordingBatchDownloadUrlTtl": null,
+   "recordingPlaybackUrlTtl": null,
+   "regionalRecordingStorageEnabled": null,
+   "stopRecordingWhenOnlyExternalParticipants": null
+  },
+  "kind": "object",
+  "model": "RecordingSettings"
+ },
+ "/api/v2/routing/email/domains": {
+  "fields": {
+   "customSMTPServer": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "dmarcVerificationResult": {
+    "dateChecked": null,
+    "detectedPolicy": null,
+    "records": null,
+    "status": null
+   },
+   "emailSetting": {
+    "domains": null,
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "graphApiSettings": {
+    "errorInfo": null,
+    "integration": null,
+    "status": null
+   },
+   "id": null,
+   "imapSettings": {
+    "errorInfo": null,
+    "integration": null,
+    "status": null
+   },
+   "mailFromSettings": {
+    "mailFromDomain": null,
+    "records": null,
+    "status": null
+   },
+   "mxRecordStatus": null,
+   "name": null,
+   "selfUri": null,
+   "subDomain": null
+  },
+  "kind": "list",
+  "model": "InboundDomain"
+ },
+ "/api/v2/routing/languages": {
+  "fields": {
+   "dateModified": null,
+   "id": null,
+   "name": null,
+   "selfUri": null,
+   "state": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "Language"
+ },
+ "/api/v2/routing/predictors": {
+  "fields": {
+   "dateCreated": null,
+   "dateModified": null,
+   "errorCode": null,
+   "id": null,
+   "kpi": null,
+   "models": {
+    "dateModified": null,
+    "mediaType": null,
+    "retrainingErrors": null,
+    "state": null
+   },
+   "queues": {
+    "id": null,
+    "selfUri": null
+   },
+   "routingTimeoutSeconds": null,
+   "schedule": {
+    "dateStarted": null,
+    "scheduleType": null
+   },
+   "selfUri": null,
+   "state": null,
+   "workloadBalancingConfig": {
+    "enabled": null,
+    "maximumOccupancy": null,
+    "minimumOccupancy": null
+   }
+  },
+  "kind": "list",
+  "model": "Predictor"
+ },
+ "/api/v2/routing/queues": {
+  "fields": {
+   "acwSettings": {
+    "timeoutMs": null,
+    "wrapupPrompt": null
+   },
+   "agentOwnedRouting": {
+    "enableAgentOwnedCallbacks": null,
+    "maxOwnedCallbackDelayHours": null,
+    "maxOwnedCallbackHours": null
+   },
+   "autoAnswerOnly": null,
+   "bullseye": {
+    "rings": null
+   },
+   "callingPartyName": null,
+   "callingPartyNumber": null,
+   "cannedResponseLibraries": {
+    "libraryIds": null,
+    "mode": null
+   },
+   "conditionalGroupActivation": {
+    "pilotRule": null,
+    "rules": null
+   },
+   "conditionalGroupRouting": {
+    "rules": null
+   },
+   "createdBy": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "defaultMediaLanguage": null,
+   "defaultScripts": null,
+   "description": null,
+   "directRouting": {
+    "agentWaitSeconds": null,
+    "backupQueueId": null,
+    "callMediaSettings": null,
+    "emailMediaSettings": null,
+    "messageMediaSettings": null,
+    "waitForAgent": null
+   },
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "emailInQueueFlow": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "enableAudioMonitoring": null,
+   "enableManualAssignment": null,
+   "enableTranscription": null,
+   "id": null,
+   "joinedMemberCount": null,
+   "lastAgentRoutingMode": null,
+   "mediaSettings": {
+    "call": null,
+    "callback": null,
+    "chat": null,
+    "email": null,
+    "message": null
+   },
+   "memberCount": null,
+   "memberGroups": {
+    "division": null,
+    "id": null,
+    "memberCount": null,
+    "name": null,
+    "selfUri": null,
+    "type": null
+   },
+   "messageInQueueFlow": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "modifiedBy": null,
+   "name": null,
+   "onHoldPrompt": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "outboundEmailAddress": {
+    "domain": null,
+    "route": null
+   },
+   "outboundMessagingAddresses": {
+    "openMessagingRecipient": null,
+    "smsAddress": null,
+    "whatsAppRecipient": null
+   },
+   "peerId": null,
+   "queueFlow": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "routingRules": {
+    "operator": null,
+    "threshold": null,
+    "waitSeconds": null
+   },
+   "scoringMethod": null,
+   "selfUri": null,
+   "skillEvaluationMethod": null,
+   "suppressInQueueCallRecording": null,
+   "userMemberCount": null,
+   "whisperPrompt": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   }
+  },
+  "kind": "list",
+  "model": "Queue"
+ },
+ "/api/v2/routing/queues/{queueId}/members": {
+  "fields": {
+   "id": null,
+   "joined": null,
+   "memberBy": null,
+   "name": null,
+   "ringNumber": null,
+   "routingStatus": {
+    "startTime": null,
+    "status": null,
+    "userId": null
+   },
+   "selfUri": null,
+   "user": {
+    "acdAutoAnswer": null,
+    "addresses": null,
+    "authorization": null,
+    "biography": null,
+    "certifications": null,
+    "chat": null,
+    "conversationSummary": null,
+    "dateLastLogin": null,
+    "dateWelcomeSent": null,
+    "department": null,
+    "division": null,
+    "email": null,
+    "employerInfo": null,
+    "geolocation": null,
+    "groups": null,
+    "id": null,
+    "images": null,
+    "integrationPresence": null,
+    "languagePreference": null,
+    "languages": null,
+    "lastTokenIssued": null,
+    "locations": null,
+    "manager": null,
+    "name": null,
+    "outOfOffice": null,
+    "preferredName": null,
+    "presence": null,
+    "primaryContactInfo": null,
+    "profileSkills": null,
+    "routingStatus": null,
+    "selfUri": null,
+    "skills": null,
+    "state": null,
+    "station": null,
+    "team": null,
+    "title": null,
+    "username": null,
+    "version": null,
+    "workPlanBidRanks": null
+   }
+  },
+  "kind": "list",
+  "model": "QueueMember"
+ },
+ "/api/v2/routing/skills": {
+  "fields": {
+   "dateModified": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "name": null,
+   "selfUri": null,
+   "state": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "RoutingSkill"
+ },
+ "/api/v2/routing/sms/addresses": {
+  "fields": {
+   "city": null,
+   "countryCode": null,
+   "id": null,
+   "name": null,
+   "postalCode": null,
+   "region": null,
+   "selfUri": null,
+   "street": null,
+   "validated": null
+  },
+  "kind": "list",
+  "model": "SmsAddress"
+ },
+ "/api/v2/routing/utilization": {
+  "fields": {
+   "labelUtilizations": null,
+   "maxInboundCalls": null,
+   "utilization": null
+  },
+  "kind": "object",
+  "model": "UtilizationResponse"
+ },
+ "/api/v2/routing/utilization/labels": {
+  "fields": {
+   "id": null,
+   "name": null,
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "UtilizationLabel"
+ },
+ "/api/v2/routing/wrapupcodes": {
+  "fields": {
+   "createdBy": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "modifiedBy": null,
+   "name": null,
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "WrapupCode"
+ },
+ "/api/v2/stations": {
+  "fields": {
+   "description": null,
+   "id": null,
+   "lineAppearanceId": null,
+   "name": null,
+   "primaryEdge": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "secondaryEdge": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "selfUri": null,
+   "status": null,
+   "type": null,
+   "userId": null,
+   "webRtcCallAppearances": null,
+   "webRtcForceTurn": null,
+   "webRtcMediaDscp": null,
+   "webRtcPersistentEnabled": null,
+   "webRtcRequireMediaHelper": null,
+   "webRtcUserId": null
+  },
+  "kind": "list",
+  "model": "Station"
+ },
+ "/api/v2/teams": {
+  "fields": {
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "memberCount": null,
+   "name": null,
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "Team"
+ },
+ "/api/v2/telephony/providers/edges": {
+  "fields": {
+   "apiVersion": null,
+   "callDrainingState": null,
+   "certType": null,
+   "conversationCount": null,
+   "createdBy": null,
+   "createdByApp": null,
+   "currentVersion": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "edgeDeploymentType": null,
+   "edgeGroup": {
+    "createdBy": null,
+    "createdByApp": null,
+    "dateCreated": null,
+    "dateModified": null,
+    "description": null,
+    "division": null,
+    "edgeTrunkBaseAssignment": null,
+    "hybrid": null,
+    "id": null,
+    "managed": null,
+    "modifiedBy": null,
+    "modifiedByApp": null,
+    "name": null,
+    "phoneTrunkBases": null,
+    "selfUri": null,
+    "state": null,
+    "version": null
+   },
+   "fingerprint": null,
+   "fingerprintHint": null,
+   "fullSoftwareVersion": null,
+   "id": null,
+   "interfaces": {
+    "addressFamilyId": null,
+    "endpoints": null,
+    "ifName": null,
+    "ipAddress": null,
+    "lineTypes": null,
+    "macAddress": null,
+    "name": null,
+    "type": null
+   },
+   "make": null,
+   "managed": null,
+   "model": null,
+   "modifiedBy": null,
+   "modifiedByApp": null,
+   "name": null,
+   "offlineConfigCalled": null,
+   "onlineStatus": null,
+   "osName": null,
+   "pairingId": null,
+   "patch": null,
+   "physicalEdge": null,
+   "proxy": null,
+   "selfUri": null,
+   "serialNumber": null,
+   "site": {
+    "addresses": null,
+    "callerId": null,
+    "callerName": null,
+    "cloudProxyForceTurn": null,
+    "coreSite": null,
+    "createdBy": null,
+    "createdByApp": null,
+    "dateCreated": null,
+    "dateModified": null,
+    "description": null,
+    "division": null,
+    "edgeAutoUpdateConfig": null,
+    "edges": null,
+    "id": null,
+    "location": null,
+    "managed": null,
+    "mediaModel": null,
+    "mediaRegions": null,
+    "mediaRegionsUseLatencyBased": null,
+    "modifiedBy": null,
+    "modifiedByApp": null,
+    "name": null,
+    "ntpSettings": null,
+    "primaryEdges": null,
+    "primarySites": null,
+    "secondaryEdges": null,
+    "secondarySites": null,
+    "selfUri": null,
+    "siteConnections": null,
+    "state": null,
+    "version": null
+   },
+   "softwareStatus": {
+    "callDrainingWaitTimeSeconds": null,
+    "current": null,
+    "downloadStartTime": null,
+    "edgeUri": null,
+    "executeOnIdle": null,
+    "executeStartTime": null,
+    "executeStopTime": null,
+    "maxDownloadRate": null,
+    "status": null,
+    "version": null
+   },
+   "softwareVersion": null,
+   "softwareVersionConfiguration": null,
+   "softwareVersionPlatform": null,
+   "softwareVersionTimestamp": null,
+   "stagedVersion": null,
+   "state": null,
+   "statusCode": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "Edge"
+ },
+ "/api/v2/telephony/providers/edges/dids": {
+  "fields": {
+   "createdBy": null,
+   "createdByApp": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "didPool": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "id": null,
+   "modifiedBy": null,
+   "modifiedByApp": null,
+   "name": null,
+   "owner": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "ownerType": null,
+   "phoneNumber": null,
+   "selfUri": null,
+   "state": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "DID"
+ },
+ "/api/v2/telephony/providers/edges/sites": {
+  "fields": {
+   "addresses": {
+    "address": null,
+    "countryCode": null,
+    "display": null,
+    "extension": null,
+    "integration": null,
+    "mediaType": null,
+    "type": null
+   },
+   "callerId": null,
+   "callerName": null,
+   "cloudProxyForceTurn": null,
+   "coreSite": null,
+   "createdBy": null,
+   "createdByApp": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "edgeAutoUpdateConfig": {
+    "end": null,
+    "rrule": null,
+    "start": null,
+    "timeZone": null
+   },
+   "edges": {
+    "apiVersion": null,
+    "callDrainingState": null,
+    "certType": null,
+    "conversationCount": null,
+    "createdBy": null,
+    "createdByApp": null,
+    "currentVersion": null,
+    "dateCreated": null,
+    "dateModified": null,
+    "description": null,
+    "division": null,
+    "edgeDeploymentType": null,
+    "edgeGroup": null,
+    "fingerprint": null,
+    "fingerprintHint": null,
+    "fullSoftwareVersion": null,
+    "id": null,
+    "interfaces": null,
+    "make": null,
+    "managed": null,
+    "model": null,
+    "modifiedBy": null,
+    "modifiedByApp": null,
+    "name": null,
+    "offlineConfigCalled": null,
+    "onlineStatus": null,
+    "osName": null,
+    "pairingId": null,
+    "patch": null,
+    "physicalEdge": null,
+    "proxy": null,
+    "selfUri": null,
+    "serialNumber": null,
+    "site": null,
+    "softwareStatus": null,
+    "softwareVersion": null,
+    "softwareVersionConfiguration": null,
+    "softwareVersionPlatform": null,
+    "softwareVersionTimestamp": null,
+    "stagedVersion": null,
+    "state": null,
+    "statusCode": null,
+    "version": null
+   },
+   "id": null,
+   "location": {
+    "address": null,
+    "addressStored": null,
+    "addressVerificationDetails": null,
+    "addressVerified": null,
+    "contactUser": null,
+    "emergencyNumber": null,
+    "floorplanImage": null,
+    "id": null,
+    "images": null,
+    "name": null,
+    "notes": null,
+    "path": null,
+    "profileImage": null,
+    "selfUri": null,
+    "state": null,
+    "version": null
+   },
+   "managed": null,
+   "mediaModel": null,
+   "mediaRegions": null,
+   "mediaRegionsUseLatencyBased": null,
+   "modifiedBy": null,
+   "modifiedByApp": null,
+   "name": null,
+   "ntpSettings": {
+    "servers": null
+   },
+   "primaryEdges": {
+    "apiVersion": null,
+    "callDrainingState": null,
+    "certType": null,
+    "conversationCount": null,
+    "createdBy": null,
+    "createdByApp": null,
+    "currentVersion": null,
+    "dateCreated": null,
+    "dateModified": null,
+    "description": null,
+    "division": null,
+    "edgeDeploymentType": null,
+    "edgeGroup": null,
+    "fingerprint": null,
+    "fingerprintHint": null,
+    "fullSoftwareVersion": null,
+    "id": null,
+    "interfaces": null,
+    "make": null,
+    "managed": null,
+    "model": null,
+    "modifiedBy": null,
+    "modifiedByApp": null,
+    "name": null,
+    "offlineConfigCalled": null,
+    "onlineStatus": null,
+    "osName": null,
+    "pairingId": null,
+    "patch": null,
+    "physicalEdge": null,
+    "proxy": null,
+    "selfUri": null,
+    "serialNumber": null,
+    "site": null,
+    "softwareStatus": null,
+    "softwareVersion": null,
+    "softwareVersionConfiguration": null,
+    "softwareVersionPlatform": null,
+    "softwareVersionTimestamp": null,
+    "stagedVersion": null,
+    "state": null,
+    "statusCode": null,
+    "version": null
+   },
+   "primarySites": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "secondaryEdges": {
+    "apiVersion": null,
+    "callDrainingState": null,
+    "certType": null,
+    "conversationCount": null,
+    "createdBy": null,
+    "createdByApp": null,
+    "currentVersion": null,
+    "dateCreated": null,
+    "dateModified": null,
+    "description": null,
+    "division": null,
+    "edgeDeploymentType": null,
+    "edgeGroup": null,
+    "fingerprint": null,
+    "fingerprintHint": null,
+    "fullSoftwareVersion": null,
+    "id": null,
+    "interfaces": null,
+    "make": null,
+    "managed": null,
+    "model": null,
+    "modifiedBy": null,
+    "modifiedByApp": null,
+    "name": null,
+    "offlineConfigCalled": null,
+    "onlineStatus": null,
+    "osName": null,
+    "pairingId": null,
+    "patch": null,
+    "physicalEdge": null,
+    "proxy": null,
+    "selfUri": null,
+    "serialNumber": null,
+    "site": null,
+    "softwareStatus": null,
+    "softwareVersion": null,
+    "softwareVersionConfiguration": null,
+    "softwareVersionPlatform": null,
+    "softwareVersionTimestamp": null,
+    "stagedVersion": null,
+    "state": null,
+    "statusCode": null,
+    "version": null
+   },
+   "secondarySites": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "selfUri": null,
+   "siteConnections": {
+    "coreSite": null,
+    "edgeList": null,
+    "enabled": null,
+    "id": null,
+    "managed": null,
+    "mediaModel": null,
+    "name": null,
+    "primaryCoreSites": null,
+    "secondaryCoreSites": null,
+    "selfUri": null,
+    "type": null
+   },
+   "state": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "Site"
+ },
+ "/api/v2/telephony/providers/edges/trunks": {
+  "fields": {
+   "connectedStatus": {
+    "connected": null,
+    "connectedStateTime": null
+   },
+   "createdBy": null,
+   "createdByApp": null,
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "edge": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "edgeGroup": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "enabled": null,
+   "family": null,
+   "id": null,
+   "inService": null,
+   "ipStatus": {
+    "address": null,
+    "errorInfo": null
+   },
+   "logicalInterface": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "modifiedBy": null,
+   "modifiedByApp": null,
+   "name": null,
+   "optionsEnabledStatus": null,
+   "optionsStatus": {
+    "errorInfo": null,
+    "optionState": null,
+    "optionStateTime": null,
+    "proxyAddress": null
+   },
+   "proxyAddressList": null,
+   "registersEnabledStatus": null,
+   "registersStatus": {
+    "errorInfo": null,
+    "proxyAddress": null,
+    "registerState": null,
+    "registerStateTime": null
+   },
+   "selfUri": null,
+   "state": null,
+   "trunkBase": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "trunkMetabase": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "trunkType": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "Trunk"
+ },
+ "/api/v2/users": {
+  "fields": {
+   "acdAutoAnswer": null,
+   "addresses": {
+    "address": null,
+    "countryCode": null,
+    "display": null,
+    "extension": null,
+    "integration": null,
+    "mediaType": null,
+    "type": null
+   },
+   "authorization": {
+    "permissionPolicies": null,
+    "permissions": null,
+    "roles": null,
+    "unusedRoles": null
+   },
+   "biography": {
+    "biography": null,
+    "education": null,
+    "hobbies": null,
+    "interests": null,
+    "spouse": null
+   },
+   "certifications": null,
+   "chat": {
+    "jabberId": null
+   },
+   "conversationSummary": {
+    "call": null,
+    "callback": null,
+    "chat": null,
+    "email": null,
+    "message": null,
+    "socialExpression": null,
+    "userId": null,
+    "video": null
+   },
+   "dateLastLogin": null,
+   "dateWelcomeSent": null,
+   "department": null,
+   "division": {
+    "id": null,
+    "name": null,
+    "selfUri": null
+   },
+   "email": null,
+   "employerInfo": {
+    "dateHire": null,
+    "employeeId": null,
+    "employeeType": null,
+    "officialName": null
+   },
+   "geolocation": {
+    "city": null,
+    "country": null,
+    "id": null,
+    "latitude": null,
+    "locations": null,
+    "longitude": null,
+    "name": null,
+    "primary": null,
+    "region": null,
+    "selfUri": null,
+    "type": null
+   },
+   "groups": {
+    "addresses": null,
+    "callsEnabled": null,
+    "dateModified": null,
+    "description": null,
+    "email": null,
+    "id": null,
+    "images": null,
+    "includeOwners": null,
+    "memberCount": null,
+    "name": null,
+    "owners": null,
+    "rolesEnabled": null,
+    "rulesVisible": null,
+    "selfUri": null,
+    "state": null,
+    "type": null,
+    "version": null,
+    "visibility": null
+   },
+   "id": null,
+   "images": {
+    "imageUri": null,
+    "resolution": null
+   },
+   "integrationPresence": {
+    "futurePresenceDefinition": null,
+    "id": null,
+    "message": null,
+    "modifiedDate": null,
+    "name": null,
+    "presenceDefinition": null,
+    "primary": null,
+    "selfUri": null,
+    "source": null,
+    "sourceId": null
+   },
+   "languagePreference": null,
+   "languages": {
+    "id": null,
+    "languageUri": null,
+    "name": null,
+    "proficiency": null,
+    "selfUri": null,
+    "state": null
+   },
+   "lastTokenIssued": {
+    "dateIssued": null
+   },
+   "locations": {
+    "coordinates": null,
+    "floorplanId": null,
+    "id": null,
+    "locationDefinition": null,
+    "notes": null
+   },
+   "manager": {
+    "acdAutoAnswer": null,
+    "addresses": null,
+    "authorization": null,
+    "biography": null,
+    "certifications": null,
+    "chat": null,
+    "conversationSummary": null,
+    "dateLastLogin": null,
+    "dateWelcomeSent": null,
+    "department": null,
+    "division": null,
+    "email": null,
+    "employerInfo": null,
+    "geolocation": null,
+    "groups": null,
+    "id": null,
+    "images": null,
+    "integrationPresence": null,
+    "languagePreference": null,
+    "languages": null,
+    "lastTokenIssued": null,
+    "locations": null,
+    "manager": null,
+    "name": null,
+    "outOfOffice": null,
+    "preferredName": null,
+    "presence": null,
+    "primaryContactInfo": null,
+    "profileSkills": null,
+    "routingStatus": null,
+    "selfUri": null,
+    "skills": null,
+    "state": null,
+    "station": null,
+    "team": null,
+    "title": null,
+    "username": null,
+    "version": null,
+    "workPlanBidRanks": null
+   },
+   "name": null,
+   "outOfOffice": {
+    "active": null,
+    "endDate": null,
+    "id": null,
+    "indefinite": null,
+    "name": null,
+    "selfUri": null,
+    "startDate": null,
+    "user": null
+   },
+   "preferredName": null,
+   "presence": {
+    "futurePresenceDefinition": null,
+    "id": null,
+    "message": null,
+    "modifiedDate": null,
+    "name": null,
+    "presenceDefinition": null,
+    "primary": null,
+    "selfUri": null,
+    "source": null,
+    "sourceId": null
+   },
+   "primaryContactInfo": {
+    "address": null,
+    "countryCode": null,
+    "display": null,
+    "extension": null,
+    "integration": null,
+    "mediaType": null,
+    "type": null
+   },
+   "profileSkills": null,
+   "routingStatus": {
+    "startTime": null,
+    "status": null,
+    "userId": null
+   },
+   "selfUri": null,
+   "skills": {
+    "id": null,
+    "name": null,
+    "proficiency": null,
+    "selfUri": null,
+    "skillUri": null,
+    "state": null
+   },
+   "state": null,
+   "station": {
+    "associatedStation": null,
+    "defaultStation": null,
+    "effectiveStation": null,
+    "lastAssociatedStation": null
+   },
+   "team": {
+    "dateCreated": null,
+    "dateModified": null,
+    "description": null,
+    "division": null,
+    "id": null,
+    "memberCount": null,
+    "name": null,
+    "selfUri": null
+   },
+   "title": null,
+   "username": null,
+   "version": null,
+   "workPlanBidRanks": {
+    "biddingTieBreaker": null,
+    "id": null,
+    "selfUri": null,
+    "workPlanBiddingPerformance": null
+   }
+  },
+  "kind": "list",
+  "model": "User"
+ },
+ "/api/v2/webdeployments/configurations": {
+  "fields": {
+   "authenticationSettings": {
+    "allowSessionUpgrade": null,
+    "enabled": null,
+    "integrationId": null
+   },
+   "cobrowse": {
+    "allowAgentControl": null,
+    "allowAgentNavigation": null,
+    "allowDraw": null,
+    "channels": null,
+    "enabled": null,
+    "maskSelectors": null,
+    "pauseCriteria": null,
+    "readonlySelectors": null
+   },
+   "createdUser": {
+    "id": null,
+    "selfUri": null
+   },
+   "customI18nLabels": {
+    "language": null,
+    "localizedLabels": null
+   },
+   "dateCreated": null,
+   "dateModified": null,
+   "datePublished": null,
+   "defaultLanguage": null,
+   "description": null,
+   "headlessMode": {
+    "enabled": null
+   },
+   "id": null,
+   "journeyEvents": {
+    "clickEvents": null,
+    "enabled": null,
+    "excludedQueryParameters": null,
+    "formsTrackEvents": null,
+    "idleEvents": null,
+    "inViewportEvents": null,
+    "pageviewConfig": null,
+    "scrollDepthEvents": null,
+    "searchQueryParameters": null,
+    "shouldKeepUrlFragment": null,
+    "trackingSettings": null
+   },
+   "languages": null,
+   "lastModifiedUser": {
+    "id": null,
+    "selfUri": null
+   },
+   "messenger": {
+    "apps": null,
+    "enabled": null,
+    "fileUpload": null,
+    "homeScreen": null,
+    "launcherButton": null,
+    "sessionPersistenceType": null,
+    "styles": null
+   },
+   "name": null,
+   "position": {
+    "alignment": null,
+    "bottomSpace": null,
+    "sideSpace": null
+   },
+   "publishedUser": {
+    "id": null,
+    "selfUri": null
+   },
+   "selfUri": null,
+   "status": null,
+   "supportCenter": {
+    "customMessages": null,
+    "enabled": null,
+    "enabledCategories": null,
+    "feedback": null,
+    "knowledgeBase": null,
+    "labelFilter": null,
+    "routerType": null,
+    "screens": null,
+    "styleSetting": null
+   },
+   "version": null,
+   "video": {
+    "agent": null,
+    "channels": null,
+    "enabled": null,
+    "user": null
+   }
+  },
+  "kind": "list",
+  "model": "WebDeploymentConfigurationVersion"
+ },
+ "/api/v2/webdeployments/deployments": {
+  "fields": {
+   "allowAllDomains": null,
+   "allowedDomains": null,
+   "configuration": {
+    "authenticationSettings": null,
+    "cobrowse": null,
+    "createdUser": null,
+    "customI18nLabels": null,
+    "dateCreated": null,
+    "dateModified": null,
+    "datePublished": null,
+    "defaultLanguage": null,
+    "description": null,
+    "headlessMode": null,
+    "id": null,
+    "journeyEvents": null,
+    "languages": null,
+    "lastModifiedUser": null,
+    "messenger": null,
+    "name": null,
+    "position": null,
+    "publishedUser": null,
+    "selfUri": null,
+    "status": null,
+    "supportCenter": null,
+    "version": null,
+    "video": null
+   },
+   "dateCreated": null,
+   "dateModified": null,
+   "description": null,
+   "flow": {
+    "flowDescription": null,
+    "id": null,
+    "name": null,
+    "publishVersion": null,
+    "selfUri": null
+   },
+   "id": null,
+   "lastModifiedUser": {
+    "id": null,
+    "selfUri": null
+   },
+   "name": null,
+   "pushIntegrations": {
+    "id": null,
+    "provider": null
+   },
+   "selfUri": null,
+   "snippet": null,
+   "status": null,
+   "supportedContent": {
+    "id": null,
+    "mediaTypes": null,
+    "name": null,
+    "selfUri": null
+   }
+  },
+  "kind": "list",
+  "model": "ExpandableWebDeployment"
+ },
+ "/api/v2/workforcemanagement/businessunits": {
+  "fields": {
+   "authorized": null,
+   "division": {
+    "id": null,
+    "selfUri": null
+   },
+   "id": null,
+   "name": null,
+   "selfUri": null
+  },
+  "kind": "list",
+  "model": "BusinessUnitListItem"
+ },
+ "/api/v2/workforcemanagement/managementunits": {
+  "fields": {
+   "businessUnit": {
+    "id": null,
+    "selfUri": null
+   },
+   "dateModified": null,
+   "division": {
+    "id": null,
+    "selfUri": null
+   },
+   "id": null,
+   "metadata": {
+    "createdBy": null,
+    "dateCreated": null,
+    "dateModified": null,
+    "modifiedBy": null,
+    "version": null
+   },
+   "modifiedBy": {
+    "id": null,
+    "selfUri": null
+   },
+   "name": null,
+   "selfUri": null,
+   "settings": {
+    "adherence": null,
+    "metadata": null,
+    "scheduling": null,
+    "shiftTrading": null,
+    "shortTermForecasting": null,
+    "timeOff": null
+   },
+   "startDayOfWeek": null,
+   "timeZone": null,
+   "version": null
+  },
+  "kind": "list",
+  "model": "ManagementUnit"
+ },
+ "_sdk_version": "269.0.0"
+}

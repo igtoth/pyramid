@@ -1,249 +1,356 @@
-# Pyramid API Management
+<p align="center">
+  <img src="assets/icon/pyramid-256.png" alt="Pyramid" width="120">
+</p>
 
-A desktop GUI tool for querying and exporting data from **Genesys Cloud** via the PureCloudPlatformClientV2 SDK.
+<h1 align="center">Pyramid</h1>
 
-Built with Python + Tkinter. Runs on Windows and any OS with Python 3.9+.
+<p align="center">
+  <b>Your Genesys Cloud org, as tables you can search, audit and export.</b><br>
+  Users with their queues and roles, routing, telephony, Architect, outbound, quality, WFM and more:<br>
+  53 read-only reports, one click each, as CSV or JSON, on Windows, macOS, Linux and in the browser.
+</p>
 
-> **This is NOT a Genesys product.** It is an independent, open-source utility.
+<p align="center">
+  <img alt="Written in Python" src="https://img.shields.io/badge/written%20in-Python-3776ab?style=flat-square&logo=python&logoColor=white">
+  <img alt="Windows, macOS, Linux and the browser" src="https://img.shields.io/badge/Windows%20%C2%B7%20macOS%20%C2%B7%20Linux%20%C2%B7%20Web-native-1f6fc5?style=flat-square">
+  <img alt="53 reports" src="https://img.shields.io/badge/reports-53-7b5cff?style=flat-square">
+  <img alt="Read only" src="https://img.shields.io/badge/API%20access-read%20only-107c10?style=flat-square">
+  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-444444?style=flat-square">
+</p>
 
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
+<p align="center">
+  <a href="https://github.com/igtoth/pyramid/releases/latest"><b>Download</b></a> &middot;
+  <a href="https://igtoth.github.io/pyramid/">Open it in the browser</a> &middot;
+  <a href="#why-pyramid">Why Pyramid</a> &middot;
+  <a href="CONTRIBUTING.md">Contribute</a>
+</p>
 
----
+<p align="center">
+  <sub>An independent open-source tool: not a Genesys product, not affiliated with or endorsed by Genesys. It only reads, and only what the roles of your OAuth client allow.</sub>
+</p>
 
-## Screenshots
+<br>
 
-| Main view - 53 API methods across 12 sections | User details - double-click drill-down |
-|:---:|:---:|
-| ![Main view](docs/screenshots/main-view.png) | ![User details](docs/screenshots/user-details.png) |
+<p align="center">
+  <img src="docs/images/pyramid-users-queues.jpg" alt="Pyramid with the All Users + Queues report open: 64 users of a made-up org, each with division, state, every queue they belong to and their skills, sorted by name" width="100%">
+  <br>
+  <sub>All Users + Queues: one row per user with every queue and skill, the export Genesys Cloud has no button for.</sub>
+</p>
 
----
+<p align="center">
+  <a href="#why-pyramid">Why Pyramid</a> &middot;
+  <a href="#features">Features</a> &middot;
+  <a href="#every-report">Every report</a> &middot;
+  <a href="#the-web-version">Web version</a> &middot;
+  <a href="#made-to-be-automated">Automation</a> &middot;
+  <a href="#security-and-privacy">Security</a> &middot;
+  <a href="#downloads">Downloads</a>
+</p>
+
+<br>
+
+<table>
+  <tr>
+    <td width="25%" valign="top">
+      <h3>One click per report</h3>
+      53 reports in 12 sections. Each opens in its own tab, with search, sorting and export, and stays in memory until you refresh it.
+    </td>
+    <td width="25%" valign="top">
+      <h3>The joins Genesys leaves to you</h3>
+      Users with all their queues, users with all their roles, metrics of every performance profile: answers the API spreads over thousands of calls, in one table.
+    </td>
+    <td width="25%" valign="top">
+      <h3>Desktop, browser, terminal</h3>
+      A native window for Windows, macOS and Linux, the same reports in the browser with your Genesys login, and a command line for scheduled snapshots.
+    </td>
+    <td width="25%" valign="top">
+      <h3>Read only, by design</h3>
+      Every call is a GET. Secrets never reach a page or an export. Rate limits are waited out, not hammered.
+    </td>
+  </tr>
+</table>
+
+<br>
+
+## Why Pyramid
+
+Genesys Cloud has no export for most of its configuration. The admin pages
+show one object at a time, and the People page only imports users from a
+CSV; it does not export them. Questions like *"which queues is every agent
+in?"* or *"who holds which role?"* (a quarterly access review) have been
+asked in the Genesys community for years, and the answer is always the same:
+use the API, the CLI, or write a script.
+
+| What you need | Genesys Cloud admin pages | `gc` CLI | CX as Code (Terraform export) | **Pyramid** |
+|---|---|---|---|---|
+| Every user, active and inactive, in a spreadsheet | no export | JSON, convert it yourself | HCL / JSON resources | **one click, CSV** |
+| Users with all their queues and skills | no | one call per user, plus a script | spread over user and queue resources | **one table** |
+| Users with all their roles (access review) | no | one call per user, plus a script | separate role resources | **one table** |
+| IVRs, schedules, trunks, flows, OAuth clients, campaigns... as tables | page by page | JSON per object type | HCL, meant for re-applying | **53 reports, CSV or JSON** |
+| No code, no Terraform | yes | no | no | **yes** |
+| Several orgs side by side | one org per login | profiles | one config per org | **saved clients, switch in a click** |
+| Nothing to install | yes | no | no | **yes: the web version** |
+| Scheduled snapshots of the whole org | no | scripts | yes | **`pyramid export all`** |
+
+When to use something else: CX as Code is the tool to **re-create or
+migrate** configuration (Pyramid never writes), and the analytics views export
+**performance** data (Pyramid exports configuration). Pyramid is for
+reading an org quickly: audits, documentation before a change, comparing
+before and after a migration, onboarding to an org you do not know yet.
+
+<sub>Sources, all from the Genesys community and Resource Center:
+<a href="https://help.genesys.cloud/articles/add-people-csv-file-import/">Bulk upload of people data</a> (import only) ·
+<a href="https://community.genesys.com/viewdocument/user-management-users-people-admin-page-update?CommunityKey=f4bf88cc-0f42-4b62-a248-018993248afa&tab=librarydocuments">People admin page update, 2026</a> (no export; a June 2026 comment says exporting users and roles is "still not available") ·
+<a href="https://community.genesys.com/discussion/export-feature-of-user-and-assigned-roleprivilege-configuration-data">export of users and roles</a> ·
+<a href="https://community.genesys.com/discussion/export-list-of-divisions-agents-by-division-and-queues-assigned-to-each-agent">agents with divisions and queues</a> ·
+<a href="https://community.genesys.com/discussion/backing-up-of-system">CX as Code export "is not a guaranteed backup and recovery solution"</a> ·
+<a href="https://help.genesys.cloud/articles/export-view-data/">Export view data</a> (performance views).</sub>
 
 ## Features
 
-- 🔐 **Credential manager** - stored in `%APPDATA%/Pyramid/pyramid.cfg` (no registry, portable)
-- 📋 **53 API methods** across 12 sections
-- ⚡ **In-memory cache** - results reused across navigations; per-client keying
-- 🔄 **Refresh on demand** - force new API call from any result page
-- 🔍 **Search / filter** - live filter on all result tables
-- ↕️ **Sortable columns** - click any column header
-- 📤 **Export CSV / JSON**
-- 🖱️ **Right-click → Copy cell value**
-- ⌨️ **Keyboard shortcuts**: `[Esc]` back, `[Ctrl+S]` save CSV
-- 📐 **Responsive card grid** - reflows 1→2→3 columns as window resizes
-- 🌗 **Light / Dark theme toggle** - persisted in config
-- 🌐 **Proxy support** - configurable proxy URL
-- 📜 **Terms of Use dialog** - first-run legal agreement with MIT license, data privacy and authorized-use disclaimers
-- 🧱 **Animated Sieve of Eratosthenes** pyramid logo in the About tab
+Every picture is Pyramid itself against a made-up org (`tests/fake_genesys.py`),
+captured by `scripts/screenshots.py` and `scripts/web_check.py`, which also
+open every report as an end-to-end test.
 
----
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/images/pyramid-home.jpg" alt="The Reports tab: twelve colour-coded sections of report buttons, from Users, Teams and Directory to Analytics and Gamification" width="100%">
+      <br>
+      <sub>The Reports tab: 53 reports in 12 sections.</sub>
+      <h3>Every report a click away</h3>
+      Users, teams and directory; telephony and Architect; routing and queues; security; configuration; integrations; quality; recording; outbound; WFM; stations and presence; analytics and gamification. Hover a button for what it reads; ⚡ marks reports already fetched.
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/images/pyramid-tabs-dark.jpg" alt="Dark theme with four report tabs open (All Users + Queues, Trunks, All Queues, IVR Configurations); the IVR tab shows each number and its open, closed and holiday flows" width="100%">
+      <br>
+      <sub>Reports open side by side in tabs, dark theme.</sub>
+      <h3>One tab per report</h3>
+      Each report opens in its own tab next to Reports, so you can compare queues with IVRs with trunks. Reopening a report switches to its tab; Ctrl+W closes one, middle-click too. Up to 12 stay open.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/images/pyramid-users-roles-dark.jpg" alt="All Users + Roles filtered by 'supervisor': six users, each with every role they hold" width="100%">
+      <br>
+      <sub>All Users + Roles, filtered to supervisors.</sub>
+      <h3>Search, sort, export what you see</h3>
+      The search box filters every column as you type; a click on a header sorts, numbers as numbers. Export CSV saves exactly what is on screen, filter and order included, as UTF-8 that Excel and Power BI open as is. Raw JSON saves the API's own answer.
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/images/pyramid-web-users-queues.jpg" alt="The web version in a browser with three report tabs; All Users + Queues filtered by 'billing'" width="100%">
+      <br>
+      <sub>The same reports in the browser.</sub>
+      <h3>In the browser too</h3>
+      <a href="https://igtoth.github.io/pyramid/">igtoth.github.io/pyramid</a> signs you in with your Genesys Cloud account (OAuth PKCE, no secret) and talks to the API straight from your browser. Or run <code>pyramid web</code> to use the clients saved in the desktop app.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/images/pyramid-settings.jpg" alt="Organization Settings shown as key and value pairs: country, language, domain, features" width="100%">
+      <br>
+      <sub>Organization settings as key and value pairs.</sub>
+      <h3>Objects as well as lists</h3>
+      Organization settings, routing utilization and recording settings come out as searchable key and value pairs, nested objects flattened (<code>features.pci</code>), and export the same way. Double-click any row of any report for every field the API returned.
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/images/pyramid-oauth.jpg" alt="The OAuth tab: two saved clients on the left; name, region, client ID and hidden secret on the right, with Save and use and Test connection" width="100%">
+      <br>
+      <sub>Saved OAuth clients, one per org.</sub>
+      <h3>Many orgs, one tool</h3>
+      Save a Client Credentials OAuth client per org (all 18 Genesys Cloud regions), switch with a click, test the connection. Results are kept per org, so switching never mixes them up.
+    </td>
+  </tr>
+</table>
 
-## API Methods (53)
+## Every report
 
-| Section | Methods |
-|---------|---------|
-| **Users, Teams & Directory** | All Users, All Users + Queues, External Contacts, Groups, Teams |
-| **Telephony & Architect** | Phone Numbers (DIDs), Edge Devices, Sites, Trunks, All Flows, IVR Configurations, Schedules, Schedule Groups, Emergency Groups, User Prompts, Flow Milestones, Flow Outcomes, Data Tables |
-| **Routing & Queues** | All Queues, All Skills, Wrap-up Codes, Routing Languages, Email Domains, SMS Addresses, Routing Utilization, Utilization Labels, Predictors |
-| **Security** | OAuth Clients, Authorization Roles |
-| **Configuration** | Organization Settings, License Users |
-| **Integrations** | All Integrations, Messaging Integrations, Web Deployments, Web Deploy Configs |
-| **Quality Management** | Evaluation Forms, Survey Forms, Calibrations |
-| **Recording** | Recording Settings, Local Key Settings |
-| **Outbound** | Campaigns, Contact Lists, DNC Lists, Call Analysis Response Sets, Sequences |
-| **Workforce Management** | Business Units, Management Units |
-| **Analytics & Stations** | Stations, Presence Definitions, Analytics Scheduled Reports |
-| **Gamification** | Profiles, Metrics |
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <h4>👤 Users, teams and directory</h4>
+      All Users (active and inactive, last token and last login) · All Users + Queues · All Users + Roles · External Contacts · Groups · Teams
+      <h4>📞 Telephony and Architect</h4>
+      Phone Numbers (DIDs) · Edge Devices · Sites · Trunks · All Flows · IVR Configurations · Schedules · Schedule Groups · Emergency Groups · User Prompts · Flow Milestones · Flow Outcomes · Data Tables
+    </td>
+    <td width="33%" valign="top">
+      <h4>🔀 Routing and queues</h4>
+      All Queues (right-click: members) · All Skills · Wrap-up Codes · Routing Languages · Email Domains · SMS Addresses · Routing Utilization · Utilization Labels · Predictors
+      <h4>🔐 Security</h4>
+      OAuth Clients (never their secrets) · Authorization Roles (with user counts)
+      <h4>⚙ Configuration</h4>
+      Organization Settings · License Users
+      <h4>🔌 Integrations</h4>
+      All Integrations · Messaging Integrations · Web Deployments · Web Deploy Configs
+    </td>
+    <td width="33%" valign="top">
+      <h4>🎯 Quality</h4>
+      Evaluation Forms · Survey Forms
+      <h4>🎙 Recording</h4>
+      Recording Settings · Key Configurations (never their API keys)
+      <h4>📤 Outbound</h4>
+      Campaigns · Contact Lists · DNC Lists · Call Analysis Response Sets · Campaign Sequences
+      <h4>📅 Workforce management</h4>
+      Business Units · Management Units
+      <h4>📱 Stations and presence · 📊 Analytics and gamification</h4>
+      Stations · Presence Definitions · Report Exports · Performance Profiles · Gamification Metrics · Metric Definitions
+    </td>
+  </tr>
+</table>
 
----
+Every report is one entry in [`src/pyramid/catalog.json`](src/pyramid/catalog.json):
+the API path, how it pages and which columns to show. Adding one is a few
+lines of JSON, and the tests check the path and every column against the
+Genesys Cloud API definition.
 
-## Requirements
+## The web version
 
-| Dependency | Version |
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/images/pyramid-web-signin-dark.jpg" alt="The web version's sign-in page in the dark theme: region, OAuth client ID, and the steps for the admin to create the PKCE client" width="100%">
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/images/pyramid-web-ivrs-dark.jpg" alt="The web version signed in, with IVR Configurations and Organization Settings open in tabs" width="100%">
+    </td>
+  </tr>
+</table>
+
+**[igtoth.github.io/pyramid](https://igtoth.github.io/pyramid/)**, nothing to install. An admin creates one OAuth client for the org, once:
+
+1. Admin › Integrations › OAuth › Add client.
+2. Grant type: **Code Authorization with PKCE** (no secret). Genesys stopped offering the implicit grant for new clients in May 2026; PKCE is its replacement for browser apps.
+3. Authorized redirect URI: `https://igtoth.github.io/pyramid/`
+4. Hand out the client ID. Everyone signs in with their own account and sees only what their own roles allow.
+
+The page is static: it runs in your browser and talks to the Genesys Cloud API
+directly. The token stays in that browser tab's session storage and goes
+nowhere else; there is no Pyramid server. Prefer to keep everything in your
+network? Serve the same files from your own host (the `web` job in
+[`build.yml`](.github/workflows/build.yml) shows the two folders it takes) and
+register that URL as the redirect URI.
+
+**`pyramid web`** serves the same page on your computer with the Client
+Credentials clients saved in the desktop app: the Pyramid process adds the
+token, so the secret never reaches the browser. More in [`docs/web.md`](docs/web.md).
+
+## Made to be automated
+
+The desktop download is also a command line, and `pip install` gives you the same:
+
+```sh
+pyramid list                                         # the 53 report keys
+pyramid export users usersqueues usersroles --client "Prod" -o exports/
+pyramid export all --client "Prod" --format both -o snapshot/   # the whole org, CSV + JSON
+pyramid web                                          # the web version on this computer
+
+# without a saved client (CI, cron, a container)
+export GC_REGION=eu_central_1 GC_CLIENT_ID=... GC_CLIENT_SECRET=...
+pyramid export all -o "snapshot-$(date +%F)/"
+```
+
+A dated `export all` every night gives you a history of the org's configuration
+that any diff tool can compare. The exit code is not zero when a report fails,
+so a scheduler notices.
+
+## Under the hood
+
+- **One catalog, three front ends.** The desktop app (Tkinter), the web page
+  (plain JavaScript, no framework, no build step) and the command line read the
+  same [`catalog.json`](src/pyramid/catalog.json) and apply the same rules;
+  a test runs the JavaScript in Node and checks that every report gives the same
+  rows and the same CSV bytes as the Python code.
+- **The REST API, no SDK.** Pyramid calls `/api/v2` with the standard library
+  (plus `certifi`). The official SDK has thousands of generated modules and
+  renames methods between versions, which had broken four buttons of v2. The
+  fields are still checked against the SDK's own model definitions in the tests
+  ([`scripts/sdk_fields.py`](scripts/sdk_fields.py)), so a renamed API field
+  fails a test instead of leaving an empty column.
+- **Polite with the API.** Paging by page number or cursor (whatever the
+  endpoint uses), `Retry-After` honoured on 429, backoff on 5xx, a fresh token
+  on 401, and reports that join data (users with queues or roles) read per queue
+  or per role instead of per user: 13 calls for 64 users and 10 queues.
+- **A window that never freezes.** Every request runs on a worker thread that
+  never touches Tk; Cancel stops a request at once, even mid-wait.
+- **Tested against a made-up org.** [`tests/fake_genesys.py`](tests/fake_genesys.py)
+  serves every endpoint, with paging, 429s, errors and PKCE; CI opens all 53
+  reports in the real desktop window (Xvfb) and in Chromium, in both web modes.
+- **Native builds.** Nuitka compiles Python to C for each platform (no
+  `%TEMP%` unpacking, which is what makes antivirus tools flag many Python
+  programs); about 40 MB installed.
+
+## Get started
+
+From source (Python 3.10 or newer; on Linux also `python3-tk`):
+
+```sh
+git clone https://github.com/igtoth/pyramid
+cd pyramid
+pip install -e .
+pyramid                      # the desktop app
+pytest                       # the tests (fake Genesys Cloud, no credentials needed)
+```
+
+The OAuth client for the desktop app and the command line uses the
+**Client Credentials** grant (Admin › Integrations › OAuth) with a role that can
+read what you want to export. New contributors: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## Downloads
+
+Each version gets a release with downloads for every platform: take the
+[latest release](https://github.com/igtoth/pyramid/releases/latest). Every push
+to `main` also refreshes the **Nightly build** pre-release.
+
+| Platform | Files |
 |---|---|
-| Python | ≥ 3.9 |
-| PureCloudPlatformClientV2 | ≥ 197.0.0 |
-| Pillow | ≥ 10.0.0 |
+| Windows (x64) | `pyramid-<version>-windows-x86_64-setup.exe` (installer, no admin rights needed), `pyramid-<version>-windows-x86_64-portable.zip` |
+| macOS (Apple silicon, Intel) | `pyramid-<version>-macos-arm64.dmg`, `pyramid-<version>-macos-x86_64.dmg` |
+| Linux (x86_64) | `pyramid-<version>-linux-x86_64.AppImage`, `pyramid-<version>-linux-x86_64.tar.gz` |
+| Web | no download: [open it in the browser](https://igtoth.github.io/pyramid/) |
+| Python | `pip install git+https://github.com/igtoth/pyramid` |
 
-> No longer requires `winreg` - runs on Windows, Linux and macOS.
+The downloads are not code-signed yet. Windows: if SmartScreen warns, More info › Run anyway.
+macOS: right-click › Open the first time. Every release lists the SHA-256 of each file.
 
----
+## Security and privacy
 
-## Installation
+- **Read only.** Every request is a GET; there is no code path that writes to
+  your org. Give the OAuth client a role with view permissions only.
+- **Secrets stay put.** Client secrets live in `pyramid.cfg` in your user
+  profile (`%APPDATA%\Pyramid`, `~/Library/Application Support/Pyramid`,
+  `~/.config/Pyramid`), readable only by you on macOS and Linux. OAuth client
+  secrets and recording API keys are removed from every report and every JSON
+  export.
+- **No telemetry.** Pyramid talks to Genesys Cloud and nothing else. The web
+  page has no backend; its Content Security Policy only allows Genesys Cloud
+  hosts.
+- **`pyramid web` is local.** It listens on 127.0.0.1 only, needs a random
+  session key, checks the `Host` header and forwards only GETs to `/api/v2/`.
+- **Safe spreadsheets.** Exported cells that a spreadsheet would run as a
+  formula (`=`, `+`, `-`, `@`) get a leading apostrophe.
 
-```bash
-git clone https://github.com/igtoth/pyramid-api-management.git
-cd pyramid-api-management
+The full policy is in [`PRIVACY.md`](PRIVACY.md). Reports can contain personal
+data (names, e-mail addresses, login dates); handling it is up to you, under the
+law that applies to you (GDPR, LGPD, ...).
 
-python -m venv .venv
-# Windows
-.venv\Scripts\activate
-# Linux / macOS
-source .venv/bin/activate
+## Documentation
 
-pip install -r requirements.txt
-python src/pyramid.py
-```
-
----
-
-## Build EXE (Windows)
-
-```bash
-pip install "nuitka[onefile]"
-pip install -r requirements.txt
-scripts\build.bat
-# Output: dist\pyramid.exe
-```
-
-See [`scripts/README_build.md`](scripts/README_build.md) for detailed build instructions.
-
-### Why Nuitka instead of PyInstaller?
-
-Nuitka compiles Python to native C - no bootloader, no `%TEMP%` extraction.
-This means **no false positives from antivirus** engines that flag PyInstaller's
-packaging technique as suspicious.
+| Document | What it covers |
+|---|---|
+| [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | what changed, version by version |
+| [`docs/web.md`](docs/web.md) | the web version: PKCE setup, self-hosting, `pyramid web` |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | the layout of the code, adding a report, tests, builds |
+| [`PRIVACY.md`](PRIVACY.md) | what Pyramid stores and sends |
+| [`old/README.md`](old/README.md) | 20 years of history: the 2005 T-Server tools, v1 (2021), v2 (2025) |
 
 ---
 
-## Project Structure
+## License and credits
 
-```
-pyramid-api-management/
-├── src/
-│   └── pyramid.py              # Main application (single-file)
-├── assets/
-│   └── pyramid.ico             # App icon (add before building)
-├── docs/
-│   └── CHANGELOG.md
-├── scripts/
-│   ├── build.bat               # Nuitka build script (Windows)
-│   └── README_build.md         # Build documentation
-├── tests/
-│   └── test_data_processing.py # Unit tests for data processing
-├── requirements.txt
-├── requirements-dev.txt
-├── .gitignore
-├── .env.example
-├── LICENSE
-└── README.md
-```
+[MIT](LICENSE). Copyright &copy; 2024-2026 Ighor Toth.
 
----
+Written by **Ighor Toth** ([toth@ighor.com](mailto:toth@ighor.com) ·
+[ighor.com](https://ighor.com)) with Claude Code, Anthropic's AI coding
+assistant, as co-author: commits it helped write carry a `Co-Authored-By` line.
 
-## Configuration File
-
-Credentials are stored in:
-
-```
-%APPDATA%\Pyramid\pyramid.cfg        (Windows)
-~/.config/Pyramid/pyramid.cfg        (Linux / macOS fallback)
-```
-
-Created automatically on first run. No registry keys used.
-
-The config file stores:
-
-- OAuth client credentials (Client ID, Secret, Region)
-- Proxy URL and enabled state
-- Theme preference (dark/light)
-- Terms acceptance flag
-
-> **⚠ Security note:** Client secrets are stored in **plain text**. Protect the config file with OS-level permissions and avoid using this tool on shared machines.
-
----
-
-## Usage
-
-1. **First run** - accept the Terms of Use dialog.
-2. **Add credentials** - go to the **OAuth** tab, fill in Name, Region, Client ID and Secret, click Save.
-3. **Test connection** - click Test to verify the credentials work.
-4. **Browse data** - switch to the **Main** tab, click any API method button.
-5. **Export** - use the CSV or JSON export buttons, or press `Ctrl+S`.
-
-### Genesys Cloud OAuth Setup
-
-You need a **Client Credentials** grant type OAuth client in your Genesys Cloud org:
-
-1. Go to **Admin → Integrations → OAuth**
-2. Create a new OAuth client with grant type **Client Credentials**
-3. Assign the required roles/permissions for the APIs you want to query
-4. Copy the Client ID and Secret into Pyramid
-
----
-
-## What Pyramid Does
-
-### 📦 Full pagination - no record limits
-Pyramid paginates the API automatically and fetches every record regardless of org size - users, queues, contacts, roles and more. Results are only limited by what the API returns.
-
-### 💾 Saves directly to your filesystem
-Exports are saved as CSV or JSON directly to any folder you choose. No size limits, no expiry, no inbox required.
-
-### 🔗 Users + Queues in one export
-Export a flat table of all users and all their queue memberships in a single CSV - one row per user, queues as a comma-separated column. Ready for Excel, Power BI or any reporting tool.
-
-### ⚙ Config objects: IVRs, Flows, Schedules and more
-Pyramid exports configuration objects not easily available through standard workflows:
-IVR Configurations (DNIS → Flow mappings), Architect Flows metadata, Schedules & Schedule Groups, Emergency Groups, OAuth Clients, Authorization Roles, Integrations, License Users, Quality forms, Recording settings, Outbound campaigns, WFM units, Gamification profiles, and more.
-
-### 🏢 Multiple orgs, one tool
-Store credentials for as many orgs as you need and switch between them with a single click. Each org's data is cached independently in memory.
-
-### ⚡ In-memory cache - instant re-open
-Once a dataset is fetched, clicking the same button again opens it instantly from memory - no new API call. Use 🔄 Refresh only when you need fresh data.
-
-### 📋 Raw JSON export
-Every query can be exported as the raw API JSON response - useful for migration scripting, debugging, or feeding data into other tools.
-
-### 🎯 Built for migrations & audits
-Pyramid is purpose-built for getting a complete snapshot of an org's configuration at any point in time.
-
-- Pre/post **migration comparison** between orgs
-- **Security audit** (roles, OAuth clients, license usage)
-- **Documentation** of a live org before making changes
-- **Onboarding**: quickly understand an unknown org's setup
-
----
-
-## Changelog
-
-See [`docs/CHANGELOG.md`](docs/CHANGELOG.md).
-
----
-
-## Running Tests
-
-```bash
-pip install -r requirements-dev.txt
-pytest tests/ -v
-```
-
----
-
-## License
-
-[MIT](LICENSE)
-
----
-
-## Author
-
-**Ighor Toth**
-- Email: [toth@ighor.com](mailto:toth@ighor.com)
-- Email: [igtoth@gmail.com](mailto:igtoth@gmail.com)
-- Website: [ighor.com](https://ighor.com)
-
----
-
-## Disclaimer
-
-> **Use only with Genesys Cloud organizations where you hold valid administrative credentials and explicit permission.**
-> Unauthorized access to third-party systems may violate applicable law (CFAA, Lei nº 12.737/2012, Computer Misuse Act, etc.).
->
-> **This software is provided "as is", without warranty of any kind. USE AT YOUR OWN RISK.**
-> The author accepts no liability for any direct, indirect, incidental or consequential damages arising from its use.
->
-> Handling of personal data retrieved via this tool is the sole responsibility of the user,
-> in compliance with applicable privacy law (LGPD, GDPR, etc.).
+<sub>Pyramid is an independent open-source project, not affiliated with, sponsored by or endorsed by Genesys. Genesys, Genesys Cloud and PureCloud are trademarks of their owner, used here only to describe what Pyramid works with. Use Pyramid only with organizations you are authorized to access. The software is provided "as is", without warranty of any kind, as the license states.</sub>

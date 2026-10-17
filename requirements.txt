@@ -1,2 +1,1 @@
-PureCloudPlatformClientV2>=197.0.0
-Pillow>=10.0.0
+certifi>=2024.2.2

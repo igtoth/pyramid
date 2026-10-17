@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://*.mypurecloud.com https://*.mypurecloud.ie https://*.mypurecloud.de https://*.mypurecloud.jp https://*.mypurecloud.com.au https://*.pure.cloud https://*.us-gov-pure.cloud https://*.eusc-pure.cloud http://127.0.0.1:* http://localhost:*; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Pyramid · Genesys Cloud reports</title>
+  <meta name="description" content="Browse, audit and export a Genesys Cloud organization from the browser: users with their queues and roles, routing, telephony, Architect and more, as CSV or JSON.">
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><img src="icon-192.png" alt="" width="28" height="28"><span>Pyramid</span><small id="version"></small></div>
+    <div class="org" id="org" hidden></div>
+    <div class="top-actions">
+      <button class="ghost" id="btn-help" type="button" title="Help">Help</button>
+      <button class="ghost" id="btn-theme" type="button" title="Dark / light theme">Dark</button>
+      <button class="ghost" id="btn-signout" type="button" hidden>Sign out</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <section id="connect" class="connect" hidden></section>
+    <section id="workspace" hidden>
+      <nav class="subtabs" id="subtabs" aria-label="Open reports"></nav>
+      <div class="stack" id="stack"></div>
+    </section>
+  </main>
+
+  <footer class="statusbar">
+    <span id="status" role="status" aria-live="polite">Ready</span>
+    <span class="spacer"></span>
+    <span class="progress" id="progress" hidden></span>
+    <button class="danger small" id="btn-cancel" type="button" hidden>Cancel</button>
+  </footer>
+
+  <dialog id="dialog">
+    <form method="dialog" class="dialog-head"><h2 id="dialog-title"></h2><button class="ghost" value="close" aria-label="Close">✕</button></form>
+    <div id="dialog-body" class="dialog-body"></div>
+  </dialog>
+
+  <noscript><p class="noscript">Pyramid needs JavaScript.</p></noscript>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

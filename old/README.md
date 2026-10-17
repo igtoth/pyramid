@@ -8,10 +8,15 @@ This directory preserves all previous versions of the Pyramid project, spanning 
 2005  ──  legacy-2005-tserver/    Genesys T-Server auto-dialer & verifier (C / TLib)
 2021  ──  v1-2021/                Pyramid v1.0 — simple PureCloud user/queue exporter
 2025  ──  v2.1.1-pre-expansion/   Pyramid v2.1.1 — 21 API methods, winreg config
-now   ──  ../src/pyramid.py       Pyramid v2.1.2 — 53 API methods, portable config
+2025  ──  v2.1.2-sdk-tk/          Pyramid v2.1.2: 53 API methods (SDK), portable config
+now   ──  ../src/pyramid/         Pyramid v3: REST catalog, desktop + web + command line
 ```
 
 ## Directories
+
+### `v2.1.2-sdk-tk/`
+The last single-file version (Tkinter + the PureCloudPlatformClientV2 SDK), replaced by v3 in October 2026.
+Its source, test, changelog and screenshots. See the review of its problems in the v3 changelog (`docs/CHANGELOG.md`).
 
 ### `legacy-2005-tserver/`
 Two C source files (`dial.c`, `verify.c`) written against the Genesys TLib SDK. Auto-dialer with redial logic and a T-Server/PBX connectivity tester. Historical artifacts from early Genesys CTI work.

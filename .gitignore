@@ -1,58 +1,35 @@
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-.Python
-
-# Virtual environments
+*.egg-info/
 .venv/
 venv/
-env/
+.pytest_cache/
+.ruff_cache/
 
-# Secrets
+# Secrets and user data: never commit
 .env
+pyramid.cfg
 secrets.json
 
-# Build / dist
+# Build output (scripts/build.py, packaging/)
 build/
 dist/
-*.egg-info/
-*.egg
+*.build/
+*.dist/
+*.onefile-build/
 
-# PyInstaller (keep build.spec, ignore generated ones)
-*.manifest
-*.spec
-!scripts/build.spec
+# Exports and screenshots made while testing
+exports/
+snapshot/
+shots/
+/*.csv
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# IDEs
+# Editors and OS
 .idea/
 .vscode/
-*.sublime-*
 *.swp
-*.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# App config (user data — never commit)
-pyramid.cfg
-
-# Exports
-exports/
-*.csv
-*.json
-!docs/**/*.json
-
-# Nuitka build output
-*.build/
-*.dist/
-pyramid.exe
-*.pyi
