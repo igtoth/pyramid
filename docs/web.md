@@ -23,11 +23,24 @@ signs in to Genesys Cloud and calls the API itself.
 
 ### Sign in
 
-Open the page, pick the org's region, paste the client ID, **Sign in with
-Genesys Cloud**. The page sends you to the Genesys login, you come back
-signed in. The region and client ID are remembered in this browser
-(`localStorage`); the access token only lives in this tab's
-`sessionStorage` and is gone when you close it.
+Add your orgs the way the desktop app's OAuth tab does: a **name** (any label),
+the **region** and the PKCE **client ID**. Pick one and **Sign in with Genesys
+Cloud**: the page sends you to the Genesys login and you come back signed in.
+
+**Nothing is stored on any server.** Pyramid has no server; everything stays in
+your browser:
+
+| What | Where | Until |
+|---|---|---|
+| saved orgs (name, region, client ID) | `sessionStorage` of the tab | the tab closes |
+| ...with **Remember on this browser** ticked | `localStorage` | you delete the org or click Forget everything |
+| the access token | `sessionStorage` of the tab | the tab closes, Sign out, or it expires |
+
+**Forget everything on this browser** removes all of it at once. There is no
+secret to store: a browser cannot use a Client Credentials secret (the Genesys
+SDK refuses it in a browser and the token endpoint does not allow it), so the
+web version signs in with your own account; for Client Credentials use the
+desktop app or `pyramid web`.
 
 ### What leaves your browser
 

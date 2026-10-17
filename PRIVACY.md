@@ -19,8 +19,8 @@ Cloud; its Content Security Policy blocks every other host.
 | Where | What |
 |---|---|
 | `pyramid.cfg` in your user profile (desktop app, command line, `pyramid web`) | saved OAuth clients (name, region, client ID, **secret in plain text**), proxy, theme, last client used. Readable only by you on macOS and Linux. |
-| the browser's `localStorage` (web version) | region, client ID, theme |
-| the browser tab's `sessionStorage` (web version) | the access token of your sign-in, until the tab closes |
+| the browser tab's `sessionStorage` (web version) | the orgs you added (name, region, client ID) and the access token, until the tab closes |
+| the browser's `localStorage` (web version) | only the orgs you ticked "Remember on this browser" for, and the theme; "Forget everything on this browser" removes them |
 | memory, while Pyramid runs | the reports you opened |
 | files you export | exactly what you exported |
 

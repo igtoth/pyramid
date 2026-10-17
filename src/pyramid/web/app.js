@@ -100,7 +100,7 @@ async function init() {
   if (!pageIsLocal) store.set("sessionStorage", "devBase", null);
   if (q.has("code") || q.has("error")) return finishPkce(q);
   const tok = token();
-  if (tok) return connectHosted(tok.region);
+  if (tok) return connectHosted(tok.region, tok.name);
   showConnectHosted();
 }
 
@@ -116,50 +116,150 @@ function token() {
   } catch { return null; }
 }
 
-// ── hosted sign-in (PKCE) ─────────────────────────────────────────────────
-function showConnectHosted(error) {
-  const region = store.get("localStorage", "region") || "us_east_1";
-  const clientId = store.get("localStorage", "clientId") || "";
-  const sel = h("select", { id: "f-region" }, Object.keys(API_HOSTS).map((r) => h("option", { value: r, selected: r === region }, r)));
-  const cid = h("input", { id: "f-client", value: clientId, placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", autocomplete: "off", spellcheck: "false" });
+// ── hosted sign-in: saved orgs (like the desktop OAuth tab) + PKCE ────────
+// Nothing leaves this browser except the sign-in itself, which goes to Genesys.
+// Orgs (name, region, client ID) live in sessionStorage, or in localStorage
+// when "Remember on this browser" is ticked; the token only in sessionStorage.
+const ORGS = "orgs";
+
+function readOrgs(area) {
+  try { return JSON.parse(store.get(area, ORGS) || "[]").filter((o) => o && o.name && o.region && o.clientId); }
+  catch { return []; }
+}
+
+function loadOrgs() {
+  const byName = new Map();
+  for (const o of readOrgs("localStorage")) byName.set(o.name, { ...o, remember: true });
+  for (const o of readOrgs("sessionStorage")) byName.set(o.name, { ...o, remember: false });
+  return [...byName.values()].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+}
+
+function saveOrgs(orgs) {
+  const pick = (list) => list.map(({ name, region, clientId }) => ({ name, region, clientId }));
+  const local = pick(orgs.filter((o) => o.remember)), session = pick(orgs.filter((o) => !o.remember));
+  store.set("localStorage", ORGS, local.length ? JSON.stringify(local) : null);
+  store.set("sessionStorage", ORGS, session.length ? JSON.stringify(session) : null);
+}
+
+function forgetEverything() {
+  for (const area of ["localStorage", "sessionStorage"]) {
+    try {
+      const keys = [];
+      for (let i = 0; i < window[area].length; i++) if (window[area].key(i).startsWith("pyramid.")) keys.push(window[area].key(i));
+      keys.forEach((k) => window[area].removeItem(k));
+    } catch { /* storage blocked: nothing to forget */ }
+  }
+  applyTheme(null);
+}
+
+function showConnectHosted(error, selectName) {
+  // an earlier version kept the last region and client ID silently: drop them
+  store.set("localStorage", "region", null);
+  store.set("localStorage", "clientId", null);
+  const orgs = loadOrgs();
+  let current = orgs.find((o) => o.name === selectName) || orgs[0] || null;
+
+  const name = h("input", { id: "f-name", placeholder: "e.g. Prod, Lab, Customer X", autocomplete: "off", maxlength: "60" });
+  const sel = h("select", { id: "f-region" }, Object.keys(API_HOSTS).map((r) => h("option", { value: r }, r)));
+  const cid = h("input", { id: "f-client", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", autocomplete: "off", spellcheck: "false" });
+  const remember = h("input", { id: "f-remember", type: "checkbox" });
+  const del = h("button", { class: "danger", type: "button" }, "Delete");
+  const list = h("div", { class: "orglist", role: "listbox", "aria-label": "Saved orgs" });
+  const formError = h("div", { class: "error", hidden: true, role: "alert" });
+
+  function fill(o) {
+    current = o;
+    name.value = o?.name || "";
+    sel.value = o?.region || "us_east_1";
+    cid.value = o?.clientId || "";
+    remember.checked = !!o?.remember;
+    del.hidden = !o;
+    for (const b of list.querySelectorAll("button[data-name]")) b.classList.toggle("active", b.dataset.name === o?.name);
+  }
+  function renderList() {
+    const items = loadOrgs().map((o) => h("button", { type: "button", "data-name": o.name, role: "option", onclick: () => fill(o) },
+      h("b", {}, o.name), h("small", {}, `${o.region}${o.remember ? "  ·  remembered" : "  ·  this tab only"}`)));
+    list.replaceChildren(...(items.length ? items : [h("p", { class: "note" }, "No saved orgs yet.")]),
+      h("button", { type: "button", class: "ghost small", onclick: () => { fill(null); name.focus(); } }, "＋ New org"));
+  }
+  function formOrg() {
+    const o = { name: name.value.trim(), region: sel.value, clientId: cid.value.trim(), remember: remember.checked };
+    const problem = !o.name ? "Give the org a name (any label you like)."
+      : !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(o.clientId)
+        ? "The client ID should look like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx." : "";
+    formError.textContent = problem;
+    formError.hidden = !problem;
+    return problem ? null : o;
+  }
+  function save(o) {
+    const all = loadOrgs().filter((x) => x.name !== o.name && x.name !== current?.name);
+    all.push(o);
+    saveOrgs(all);
+  }
+  const go = h("button", { class: "accent", type: "button", onclick: () => { const o = formOrg(); if (o) { save(o); startPkce(o); } } }, "Sign in with Genesys Cloud");
+  const keep = h("button", { type: "button", onclick: () => { const o = formOrg(); if (o) { save(o); renderList(); fill(o); status(`Saved ${o.name}`, "ok"); } } }, "Save");
+  del.onclick = () => {
+    if (!current || !confirm(`Remove ${current.name} from this browser?`)) return;
+    saveOrgs(loadOrgs().filter((x) => x.name !== current.name));
+    renderList();
+    fill(loadOrgs()[0] || null);
+  };
+  const forget = h("button", { type: "button", class: "ghost small", onclick: () => {
+    if (!confirm("Remove every org, setting and token Pyramid keeps in this browser?")) return;
+    forgetEverything();
+    showConnectHosted();
+    status("Everything Pyramid kept in this browser was removed", "ok");
+  } }, "Forget everything on this browser");
+  for (const el of [name, cid]) el.addEventListener("keydown", (e) => { if (e.key === "Enter") go.click(); });
+
   const redirect = h("input", { value: redirectUri(), readonly: true });
   const copy = h("button", { type: "button", class: "small", onclick: () => navigator.clipboard?.writeText(redirect.value).then(() => status("Redirect URI copied", "ok")) }, "Copy");
-  const go = h("button", { class: "accent", type: "button", onclick: () => startPkce(sel.value, cid.value.trim()) }, "Sign in with Genesys Cloud");
-  cid.addEventListener("keydown", (e) => { if (e.key === "Enter") go.click(); });
   const box = $("connect");
   box.replaceChildren(h("div", { class: "card" },
     h("h1", {}, "Your Genesys Cloud org, as tables you can export"),
-    h("p", {}, `${S.catalog.endpoints.length} read-only reports: users with their queues and roles, routing, telephony, Architect, outbound, quality, WFM and more, as CSV or JSON. The page talks to the Genesys Cloud API straight from your browser; nothing goes anywhere else.`),
-    h("div", { class: "form-row" }, h("label", { for: "f-region" }, "Region"), sel),
-    h("div", { class: "form-row" }, h("label", { for: "f-client" }, "OAuth client ID"), cid),
-    h("div", { class: "form-actions" }, go),
+    h("p", {}, `${S.catalog.endpoints.length} read-only reports: users with their queues and roles, routing, telephony, Architect, outbound, quality, WFM and more, as CSV or JSON.`),
+    h("div", { class: "privacy" },
+      h("b", {}, "Nothing is stored on any server. "),
+      "Pyramid has no server: this page runs in your browser and talks only to Genesys Cloud. Your orgs stay in this browser (this tab only, unless you tick Remember), the sign-in token only in this tab, and Sign out or Forget everything clears them."),
     error ? h("div", { class: "error" }, error) : null,
-    h("h3", {}, "First time? An admin creates the OAuth client once"),
-    h("ol", { class: "steps" },
-      h("li", {}, "Admin › Integrations › OAuth › Add client."),
-      h("li", {}, "Grant type: Code Authorization with PKCE (no secret)."),
-      h("li", {}, "Authorized redirect URI:", h("div", { class: "copy-field" }, redirect, copy)),
-      h("li", {}, "Save, and give everyone who should run reports the client ID. Each person signs in with their own account and sees only what their roles allow.")),
-    h("p", { class: "note" }, "Prefer client credentials, or no browser at all? The desktop app and ", h("code", {}, "pyramid web"),
-      " use saved Client Credentials clients: ", h("a", { href: "https://github.com/igtoth/pyramid/releases/latest" }, "download Pyramid"), "."),
+    h("div", { class: "connect-grid" },
+      h("div", {}, h("h3", {}, "Saved orgs"), list),
+      h("div", {},
+        h("h3", {}, "Org details"),
+        h("div", { class: "form-row" }, h("label", { for: "f-name" }, "Name"), name),
+        h("div", { class: "form-row" }, h("label", { for: "f-region" }, "Region"), sel),
+        h("div", { class: "form-row" }, h("label", { for: "f-client" }, "OAuth client ID"), cid),
+        h("div", { class: "form-row" }, h("span", {}),
+          h("label", { class: "check" }, remember, " Remember on this browser ", h("small", {}, "(otherwise only until this tab closes)"))),
+        formError,
+        h("div", { class: "form-actions" }, go, keep, del),
+        h("p", { class: "note" }, "No secret here: you sign in on the Genesys Cloud login page with your own account and see only what your roles allow. Browsers cannot use a Client Credentials secret (Genesys blocks it); for that, use the desktop app or ", h("code", {}, "pyramid web"), "."))),
+    h("details", { class: "admin" },
+      h("summary", {}, "First time? An admin creates the OAuth client once"),
+      h("ol", { class: "steps" },
+        h("li", {}, "Admin › Integrations › OAuth › Add client."),
+        h("li", {}, "Grant type: Code Authorization with PKCE (no secret)."),
+        h("li", {}, "Authorized redirect URI:", h("div", { class: "copy-field" }, redirect, copy)),
+        h("li", {}, "Save, and share the client ID with the people who should run reports."))),
+    h("div", { class: "form-actions" }, forget,
+      h("a", { class: "note", href: "https://github.com/igtoth/pyramid/releases/latest" }, "Download the desktop app")),
   ));
+  renderList();
+  fill(current);
   box.hidden = false;
   $("workspace").hidden = true;
-  cid.focus();
+  (current ? cid : name).focus();
 }
 
-async function startPkce(region, clientId) {
-  if (!/^[0-9a-f-]{36}$/i.test(clientId)) return showConnectHosted("The client ID should look like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.");
-  store.set("localStorage", "region", region);
-  store.set("localStorage", "clientId", clientId);
+async function startPkce(org) {
   const verifier = pkceVerifier(64);
   const state = pkceVerifier(16);
-  store.set("sessionStorage", "pkce", JSON.stringify({ verifier, state, region, clientId }));
+  store.set("sessionStorage", "pkce", JSON.stringify({ verifier, state, region: org.region, clientId: org.clientId, name: org.name }));
   const q = new URLSearchParams({
-    client_id: clientId, redirect_uri: redirectUri(), response_type: "code",
+    client_id: org.clientId, redirect_uri: redirectUri(), response_type: "code",
     code_challenge: await pkceChallenge(verifier), code_challenge_method: "S256", state,
   });
-  location.assign(`${loginBase(region)}/oauth/authorize?${q}`);
+  location.assign(`${loginBase(org.region)}/oauth/authorize?${q}`);
 }
 
 async function finishPkce(q) {
@@ -167,8 +267,8 @@ async function finishPkce(q) {
   let pk = null;
   try { pk = JSON.parse(store.get("sessionStorage", "pkce") || "null"); } catch { /* ignore */ }
   store.set("sessionStorage", "pkce", null);
-  if (q.get("error")) return showConnectHosted(`Sign-in failed: ${q.get("error_description") || q.get("error")}`);
-  if (!pk || pk.state !== q.get("state")) return showConnectHosted("Sign-in could not be verified (state mismatch). Try again.");
+  if (q.get("error")) return showConnectHosted(`Sign-in failed: ${q.get("error_description") || q.get("error")}`, pk?.name);
+  if (!pk || pk.state !== q.get("state")) return showConnectHosted("Sign-in could not be verified (state mismatch). Try again.", pk?.name);
   status("Signing in...", "busy");
   try {
     const resp = await fetch(`${loginBase(pk.region)}/oauth/token`, {
@@ -178,16 +278,17 @@ async function finishPkce(q) {
     });
     const body = await resp.json().catch(() => ({}));
     if (!resp.ok || !body.access_token) throw new Error(body.error_description || body.error || `HTTP ${resp.status}`);
-    store.set("sessionStorage", "token", JSON.stringify({ accessToken: body.access_token, region: pk.region,
+    store.set("sessionStorage", "token", JSON.stringify({ accessToken: body.access_token, region: pk.region, name: pk.name,
       expiresAt: Date.now() + (body.expires_in || 3600) * 1000 }));
-    connectHosted(pk.region);
+    connectHosted(pk.region, pk.name);
   } catch (e) {
-    showConnectHosted(`Sign-in failed: ${e.message}. Check that the OAuth client uses the PKCE grant and that the redirect URI matches exactly.`);
+    showConnectHosted(`Sign-in failed: ${e.message}. Check that the OAuth client uses the PKCE grant and that the redirect URI matches exactly.`, pk.name);
   }
 }
 
-function connectHosted(region) {
+function connectHosted(region, name = "") {
   S.region = region;
+  S.clientName = name || "";
   S.api = new Api({
     base: apiHost(region),
     headers: () => ({ Authorization: "Bearer " + (token()?.accessToken || "") }),
@@ -204,7 +305,7 @@ function signOut() {
   closeAllTabs(false);
   $("org").hidden = true;
   $("btn-signout").hidden = true;
-  showConnectHosted();
+  showConnectHosted(null, S.clientName);
 }
 
 // ── local mode (pyramid web) ──────────────────────────────────────────────
@@ -254,7 +355,7 @@ async function openWorkspace() {
     S.orgName = S.clientName || "";
   }
   const org = $("org");
-  org.textContent = `● ${S.orgName}${S.mode === "local" ? `  ·  ${S.clientName}` : ""}  ·  ${S.region}`;
+  org.textContent = `● ${S.orgName}${S.clientName && S.clientName !== S.orgName ? `  ·  ${S.clientName}` : ""}  ·  ${S.region}`;
   org.hidden = false;
   select(null);
 }

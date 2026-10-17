@@ -132,10 +132,19 @@ with sync_playwright() as p:
     watch(page)
     page.goto(site_url + f"?api={fake_url}")
     expect(page.locator("#connect h1")).to_be_visible()
-    page.screenshot(path=str(OUT / "pyramid-web-signin-dark.jpg"), quality=88)
+    expect(page.locator(".privacy")).to_contain_text("Nothing is stored on any server")
+    page.fill("#f-name", "Lumen prod")
+    page.fill("#f-client", "not-an-id")
+    page.get_by_role("button", name="Sign in with Genesys Cloud").click()
+    expect(page.locator("[role=alert]")).to_contain_text("client ID should look like")
+    assert page.input_value("#f-name") == "Lumen prod"  # what was typed survives the error
     page.fill("#f-client", fg.CLIENT_ID)
     page.get_by_role("button", name="Sign in with Genesys Cloud").click()
     expect(page.locator("#org")).to_contain_text("Lumen Harbor Telecom", timeout=15000)
+    expect(page.locator("#org")).to_contain_text("Lumen prod")
+    # not remembered: the org lives in this tab's sessionStorage only
+    assert page.evaluate("localStorage.getItem('pyramid.orgs')") is None
+    assert "Lumen prod" in page.evaluate("sessionStorage.getItem('pyramid.orgs')")
     open_report(page, "IVR Configurations")
     open_report_tab = page.locator(".subtabs .tab", has_text="Reports")
     open_report_tab.click()
@@ -147,7 +156,18 @@ with sync_playwright() as p:
     page.set_viewport_size({"width": 390, "height": 800})
     wide = page.evaluate("document.documentElement.scrollWidth > window.innerWidth + 1")
     assert not wide, "page scrolls sideways at phone width"
-    print("hosted mode: PKCE sign-in and reports OK", flush=True)
+    # sign out: the saved org is offered again; remember it; forget everything
+    page.set_viewport_size({"width": 1360, "height": 820})
+    page.locator("#btn-signout").click()
+    expect(page.locator(".orglist button[data-name]")).to_have_count(1)
+    page.check("#f-remember")
+    page.get_by_role("button", name="Save").click()
+    assert "Lumen prod" in page.evaluate("localStorage.getItem('pyramid.orgs')")
+    page.screenshot(path=str(OUT / "pyramid-web-signin-dark.jpg"), quality=88)
+    page.on("dialog", lambda d: d.accept())
+    page.get_by_role("button", name="Forget everything on this browser").click()
+    assert page.evaluate("Object.keys(localStorage).concat(Object.keys(sessionStorage)).filter(k => k.startsWith('pyramid.'))") == []
+    print("hosted mode: saved orgs, PKCE sign-in and reports OK", flush=True)
     ss.shutdown()
     browser.close()
 

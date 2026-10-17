@@ -6,8 +6,10 @@ A rewrite around one catalog of reports, shared by a new desktop app, a web
 version and a command line.
 
 ### Added
-- **Web version** at https://igtoth.github.io/pyramid/: sign in with your
-  Genesys Cloud account (OAuth PKCE, no secret), same reports, same exports.
+- **Web version** at https://igtoth.github.io/pyramid/: saved orgs like the
+  desktop OAuth tab (kept in the tab's session, or in the browser when
+  remembered; nothing on any server), sign in with your Genesys Cloud
+  account (OAuth PKCE, no secret), same reports, same exports.
 - **`pyramid web`**: the web page on your computer with the clients saved in
   the desktop app; the secret stays in the Pyramid process.
 - **Command line**: `pyramid export <reports...> | all`, CSV and/or JSON,
