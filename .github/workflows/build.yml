@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]   # every branch is built and tested; only main publishes (pages, nightly)
     tags: ["v*"]
   pull_request:
   # Run by hand (Actions > build > Run workflow): with a version, the run
