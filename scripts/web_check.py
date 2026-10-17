@@ -88,8 +88,14 @@ with sync_playwright() as p:
     r = page.request.get(f"http://127.0.0.1:{port}/local/info")
     assert r.status == 401, r.status
     page.goto(f"http://127.0.0.1:{port}/?k={local.url_key}")
-    page.get_by_role("button", name="Connect").click()
-    expect(page.locator("#org")).to_contain_text("Lumen Harbor Telecom")
+    # like the desktop: Main first, "No client selected" until one is picked in OAuth
+    expect(page.locator(".banner.warn")).to_contain_text("No client selected")
+    expect(page.locator("#client-label")).to_have_text("No client selected")
+    page.locator("[data-tab=oauth]").click()
+    page.locator(".clientlist .item", has_text="Lumen Harbor (prod)").click()
+    page.get_by_role("button", name="Use this client").click()
+    expect(page.locator("#client-label")).to_contain_text("Lumen Harbor Telecom")
+    expect(page.locator("[data-tab=main]")).to_have_class("active")
     page.screenshot(path=str(OUT / "pyramid-web-home.jpg"), quality=88)
     page.on("dialog", lambda d: d.accept())  # the "can take minutes" confirm
     open_report(page, "All Users + Queues")
@@ -123,6 +129,17 @@ with sync_playwright() as p:
         open_report_tab.click()
         open_report(page, ep.label)
     print("local mode: every report opened; tabs kept:", page.locator(".subtabs .tab").count() - 1, flush=True)
+    # the other top tabs, as in the desktop app
+    page.locator("[data-tab=log]").click()
+    expect(page.locator("#log-lines")).to_contain_text("Connected to Lumen Harbor Telecom")
+    page.locator("[data-tab=help]").click()
+    expect(page.locator(".help")).to_contain_text("All Users + Roles")
+    page.locator("[data-tab=about]").click()
+    expect(page.locator(".about")).to_contain_text("Pyramid API Management")
+    page.wait_for_timeout(600)
+    page.screenshot(path=str(OUT / "pyramid-web-about.jpg"), quality=88)
+    page.locator("[data-tab=config]").click()
+    expect(page.locator(".config")).to_contain_text("Theme")
     local.shutdown()
 
     # ── 2. hosted mode (GitHub Pages) with PKCE ──────────────────────────
@@ -131,17 +148,19 @@ with sync_playwright() as p:
     page = browser.new_page(viewport={"width": 1360, "height": 820}, color_scheme="dark")
     watch(page)
     page.goto(site_url + f"?api={fake_url}")
-    expect(page.locator("#connect h1")).to_be_visible()
+    expect(page.locator(".banner.warn")).to_contain_text("No client selected")
+    page.get_by_role("button", name="Open OAuth tab").click()
     expect(page.locator(".privacy")).to_contain_text("Nothing is stored on any server")
     page.fill("#f-name", "Lumen prod")
     page.fill("#f-client", "not-an-id")
-    page.get_by_role("button", name="Sign in with Genesys Cloud").click()
-    expect(page.locator("[role=alert]")).to_contain_text("client ID should look like")
+    page.get_by_role("button", name="Save and sign in").click()
+    expect(page.locator("[role=alert]")).to_contain_text("Client ID should look like")
     assert page.input_value("#f-name") == "Lumen prod"  # what was typed survives the error
     page.fill("#f-client", fg.CLIENT_ID)
-    page.get_by_role("button", name="Sign in with Genesys Cloud").click()
-    expect(page.locator("#org")).to_contain_text("Lumen Harbor Telecom", timeout=15000)
-    expect(page.locator("#org")).to_contain_text("Lumen prod")
+    page.get_by_role("button", name="Save and sign in").click()
+    expect(page.locator("#client-label")).to_contain_text("Lumen Harbor Telecom", timeout=15000)
+    expect(page.locator("#client-label")).to_contain_text("Lumen prod")
+    expect(page.locator("[data-tab=main]")).to_have_class("active")
     # not remembered: the org lives in this tab's sessionStorage only
     assert page.evaluate("localStorage.getItem('pyramid.orgs')") is None
     assert "Lumen prod" in page.evaluate("sessionStorage.getItem('pyramid.orgs')")
@@ -158,13 +177,16 @@ with sync_playwright() as p:
     assert not wide, "page scrolls sideways at phone width"
     # sign out: the saved org is offered again; remember it; forget everything
     page.set_viewport_size({"width": 1360, "height": 820})
-    page.locator("#btn-signout").click()
-    expect(page.locator(".orglist button[data-name]")).to_have_count(1)
+    page.locator("[data-tab=oauth]").click()
+    page.get_by_role("button", name="Sign out").click()
+    expect(page.locator("#client-label")).to_have_text("No client selected")
+    expect(page.locator(".clientlist .item")).to_have_count(1)
     page.check("#f-remember")
-    page.get_by_role("button", name="Save").click()
+    page.get_by_role("button", name="Save", exact=True).click()
     assert "Lumen prod" in page.evaluate("localStorage.getItem('pyramid.orgs')")
     page.screenshot(path=str(OUT / "pyramid-web-signin-dark.jpg"), quality=88)
     page.on("dialog", lambda d: d.accept())
+    page.locator("[data-tab=config]").click()
     page.get_by_role("button", name="Forget everything on this browser").click()
     assert page.evaluate("Object.keys(localStorage).concat(Object.keys(sessionStorage)).filter(k => k.startsWith('pyramid.'))") == []
     print("hosted mode: saved orgs, PKCE sign-in and reports OK", flush=True)
