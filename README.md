@@ -224,10 +224,13 @@ Genesys Cloud API definition.
 3. Authorized redirect URI: `https://igtoth.github.io/pyramid/`
 4. Hand out the client ID. Everyone signs in with their own account and sees only what their own roles allow.
 
-Add your orgs as in the desktop app (name, region, client ID) and sign in.
-**Nothing is stored on any server:** the page runs in your browser and talks
-only to Genesys Cloud. Your orgs stay in the tab's session, or in the browser
-when you tick *Remember*; the token only in the tab; *Forget everything*
+Same tabs as the desktop app (Main, OAuth, Config, Log, Help, About). Add a
+client in the OAuth tab: with a **Client secret** the page asks Genesys for the
+token directly, as the desktop app does (Genesys may refuse this grant from a
+web page; the page then says so); without one, you sign in with your Genesys
+account (PKCE). **Nothing is stored on any server:** the page runs in your
+browser and talks only to Genesys Cloud; your clients stay in the tab's
+session, or in the browser when you tick *Remember*; *Forget everything*
 clears it all. Prefer to keep everything in your
 network? Serve the same files from your own host (the `web` job in
 [`build.yml`](.github/workflows/build.yml) shows the two folders it takes) and

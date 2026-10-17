@@ -193,16 +193,18 @@ class Handler(BaseHTTPRequestHandler):
     org: Org
     fail_429: dict     # path -> how many 429s to answer first
     fail_status: dict  # path -> status to answer every time
+    cors_client_credentials = True  # False: like a token endpoint that refuses browsers for this grant
 
     def log_message(self, *_):  # quiet
         pass
 
-    def _json(self, code: int, body, headers=None) -> None:
+    def _json(self, code: int, body, headers=None, cors: bool = True) -> None:
         raw = json.dumps(body).encode()
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(raw)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        if cors:
+            self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type")
         for k, v in (headers or {}).items():
             self.send_header(k, v)
@@ -221,9 +223,10 @@ class Handler(BaseHTTPRequestHandler):
         ok = auth == "Basic " + base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
         if form.get("grant_type") == ["authorization_code"]:
             ok = True  # PKCE in the web page
+        cors = self.cors_client_credentials or form.get("grant_type") != ["client_credentials"]
         if not ok:
-            return self._json(400, {"error": "invalid_client", "error_description": "Invalid client credentials"})
-        self._json(200, {"access_token": "fake-token", "token_type": "bearer", "expires_in": 86399})
+            return self._json(400, {"error": "invalid_client", "error_description": "Invalid client credentials"}, cors=cors)
+        self._json(200, {"access_token": "fake-token", "token_type": "bearer", "expires_in": 86399}, cors=cors)
 
     def do_GET(self):
         u = urllib.parse.urlsplit(self.path)

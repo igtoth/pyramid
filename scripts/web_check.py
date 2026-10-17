@@ -153,11 +153,11 @@ with sync_playwright() as p:
     expect(page.locator(".privacy")).to_contain_text("Nothing is stored on any server")
     page.fill("#f-name", "Lumen prod")
     page.fill("#f-client", "not-an-id")
-    page.get_by_role("button", name="Save and sign in").click()
+    page.get_by_role("button", name="Save and use").click()
     expect(page.locator("[role=alert]")).to_contain_text("Client ID should look like")
     assert page.input_value("#f-name") == "Lumen prod"  # what was typed survives the error
     page.fill("#f-client", fg.CLIENT_ID)
-    page.get_by_role("button", name="Save and sign in").click()
+    page.get_by_role("button", name="Save and use").click()
     expect(page.locator("#client-label")).to_contain_text("Lumen Harbor Telecom", timeout=15000)
     expect(page.locator("#client-label")).to_contain_text("Lumen prod")
     expect(page.locator("[data-tab=main]")).to_have_class("active")
@@ -189,7 +189,36 @@ with sync_playwright() as p:
     page.locator("[data-tab=config]").click()
     page.get_by_role("button", name="Forget everything on this browser").click()
     assert page.evaluate("Object.keys(localStorage).concat(Object.keys(sessionStorage)).filter(k => k.startsWith('pyramid.'))") == []
-    print("hosted mode: saved orgs, PKCE sign-in and reports OK", flush=True)
+    # a client with a secret (Client Credentials), as in the desktop app
+    page.goto(site_url + f"?api={fake_url}")  # Forget everything also dropped the test override
+    page.locator("[data-tab=oauth]").click()
+    page.get_by_role("button", name="New").click()
+    page.fill("#f-name", "Lumen API")
+    page.fill("#f-client", fg.CLIENT_ID)
+    page.fill("#f-secret", fg.CLIENT_SECRET)
+    assert page.get_attribute("#f-secret", "type") == "password"
+    page.check("#f-show")
+    assert page.get_attribute("#f-secret", "type") == "text"
+    page.get_by_role("button", name="Test connection").click()
+    expect(page.locator("#dialog")).to_contain_text("Connected to Lumen Harbor Telecom")
+    page.keyboard.press("Escape")
+    page.get_by_role("button", name="Save and use").click()
+    expect(page.locator("#client-label")).to_contain_text("Lumen API", timeout=15000)
+    open_report(page, "Trunks")
+    assert fg.CLIENT_SECRET in page.evaluate("sessionStorage.getItem('pyramid.orgs')")
+    remembered = page.evaluate("localStorage.getItem('pyramid.orgs')") or ""
+    assert fg.CLIENT_SECRET not in remembered  # not ticked: the secret is not kept beyond the tab
+    # when Genesys refuses the secret from a web page (no CORS), the page says so
+    srv.handler.cors_client_credentials = False
+    before = len(errors)
+    page.locator("[data-tab=oauth]").click()
+    page.get_by_role("button", name="Sign out").click()
+    page.locator(".clientlist .item", has_text="Lumen API").click()
+    page.get_by_role("button", name="Save and use").click()
+    expect(page.locator("[role=alert]")).to_contain_text("did not let this web page use the Client secret")
+    srv.handler.cors_client_credentials = True
+    errors[before:] = [e for e in errors[before:] if "CORS policy" not in e and "ERR_FAILED" not in e]  # provoked on purpose
+    print("hosted mode: saved orgs, PKCE sign-in, client credentials and reports OK", flush=True)
     ss.shutdown()
     browser.close()
 

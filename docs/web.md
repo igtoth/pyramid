@@ -12,8 +12,9 @@ signs in to Genesys Cloud and calls the API itself.
 ### Set up the OAuth client (an admin, once per org)
 
 1. Admin › Integrations › OAuth › **Add client**.
-2. App name: `Pyramid web`. Grant type: **Code Authorization with PKCE**.
-   PKCE needs no secret. (Genesys stopped offering the implicit grant for new
+2. App name: `Pyramid web`. Grant type: **Code Authorization with PKCE**
+   (sign in with your own account, no secret) or **Client Credentials** (a
+   secret, like the desktop app; see below). PKCE needs no secret. (Genesys stopped offering the implicit grant for new
    clients on 25 May 2026 and removes it in 2027; PKCE is the replacement.)
 3. Authorized redirect URI: `https://igtoth.github.io/pyramid/`, exactly,
    with the trailing slash.
@@ -23,24 +24,31 @@ signs in to Genesys Cloud and calls the API itself.
 
 ### Sign in
 
-Add your orgs the way the desktop app's OAuth tab does: a **name** (any label),
-the **region** and the PKCE **client ID**. Pick one and **Sign in with Genesys
-Cloud**: the page sends you to the Genesys login and you come back signed in.
+The OAuth tab works like the desktop app's: **Saved clients** on the left;
+**Name**, **Region**, **Client ID**, **Client secret** (with *Show secret*)
+on the right; **Save and use**, **Test connection**, **Save**, **New**,
+**Delete**.
+
+- **With a Client secret** (a Client Credentials client), the page asks
+  Genesys for the token directly, as the desktop app does. Genesys may refuse
+  that grant from a web page (its token endpoint is meant for servers, and its
+  own JavaScript SDK does not allow it in a browser); if it does, the page says
+  so, and the desktop app or `pyramid web` work with the same client.
+- **Without a secret** (a PKCE client), *Save and use* sends you to the Genesys
+  login and you come back signed in with your own account.
 
 **Nothing is stored on any server.** Pyramid has no server; everything stays in
 your browser:
 
 | What | Where | Until |
 |---|---|---|
-| saved orgs (name, region, client ID) | `sessionStorage` of the tab | the tab closes |
-| ...with **Remember on this browser** ticked | `localStorage` | you delete the org or click Forget everything |
+| saved clients (name, region, client ID, secret if you typed one) | `sessionStorage` of the tab | the tab closes |
+| ...with **Remember on this browser** ticked | `localStorage` | you delete the client or click Forget everything |
 | the access token | `sessionStorage` of the tab | the tab closes, Sign out, or it expires |
 
-**Forget everything on this browser** removes all of it at once. There is no
-secret to store: a browser cannot use a Client Credentials secret (the Genesys
-SDK refuses it in a browser and the token endpoint does not allow it), so the
-web version signs in with your own account; for Client Credentials use the
-desktop app or `pyramid web`.
+**Forget everything on this browser** (Config tab) removes all of it at once.
+A remembered secret can be read by anyone who uses this browser profile, as
+with any password a browser keeps.
 
 ### What leaves your browser
 
