@@ -7,7 +7,13 @@ a process list); the key is traded for an HttpOnly, SameSite=Strict cookie
 named after the port. Every /local/ call needs that cookie, and the Host
 header must be this server, so other sites and DNS rebinding cannot reach the
 proxy. Static files come from a fixed list. The proxy forwards GETs to
-/api/v2/ only and adds the token itself: secrets never reach the page.
+/api/v2/ only and adds the token itself.
+
+The OAuth tab of the page can add, edit, test and delete clients like the
+desktop app: those are JSON POSTs to /local/clients and /local/test, which
+also need the X-Pyramid header (a cross-site form cannot send it) and a
+same-origin Origin. A secret goes from the page to this process once, when it
+is typed; it is saved in pyramid.cfg and never sent back to the page.
 """
 
 from __future__ import annotations
@@ -30,11 +36,14 @@ from pathlib import Path
 
 from . import __version__
 from .client import ApiError, GenesysClient
-from .config import Store
+from .config import OAuthClient, Store
+from .regions import API_HOSTS
 
 log = logging.getLogger(__name__)
 COOKIE = "pyramid_session"
 SAFE_API_PATH = re.compile(r"^/api/v2/[A-Za-z0-9_\-/.]*$")
+CLIENT_ID = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+MAX_BODY = 16 * 1024
 
 
 def cookie_name(port: int) -> str:
@@ -68,8 +77,61 @@ class LocalServer(ThreadingHTTPServer):
     def info(self) -> dict:
         with self.lock:
             self.store.reload_if_changed()
-            return {"clients": [{"name": c.name, "region": c.region} for c in self.store.clients()],
+            return {"clients": [{"name": c.name, "region": c.region, "clientId": c.client_id,
+                                 "hasSecret": bool(c.client_secret)} for c in self.store.clients()],
                     "last": self.store.get("last_client")}
+
+    def _form_client(self, body: dict) -> tuple[OAuthClient, str | None]:
+        """A client from the page's form; an empty secret keeps the saved one."""
+        def text(key):
+            v = body.get(key)
+            return v.strip() if isinstance(v, str) else ""
+        name, region, cid, secret, old = (text(k) for k in ("name", "region", "clientId", "secret", "oldName"))
+        if not name or len(name) > 60 or any(ch in name for ch in "[]\n\r"):
+            raise ValueError("Give the client a name (up to 60 characters, no [ or ]).")
+        if region not in API_HOSTS:
+            raise ValueError(f"Unknown region {region!r}")
+        if not CLIENT_ID.match(cid):
+            raise ValueError("The Client ID should look like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.")
+        if not secret:
+            saved = self.store.client(old or name)
+            secret = saved.client_secret if saved and saved.client_id == cid else ""
+        if not secret:
+            raise ValueError("Type the Client secret.")
+        return OAuthClient(name, region, cid, secret), old or None
+
+    def save_client(self, body: dict) -> dict:
+        with self.lock:
+            self.store.reload_if_changed()
+            c, old = self._form_client(body)
+            if c.name != old and self.store.client(c.name):
+                raise ValueError(f"A client named {c.name!r} already exists.")
+            self.store.put_client(c, old_name=old)
+            self.clients.pop(old or c.name, None)
+        return self.info()
+
+    def delete_client(self, name: str) -> dict:
+        with self.lock:
+            self.store.reload_if_changed()
+            self.store.delete_client(name)
+            self.clients.pop(name, None)
+        return self.info()
+
+    def set_last(self, name: str) -> None:
+        with self.lock:
+            self.store.reload_if_changed()
+            if self.store.client(name):
+                self.store.set("last_client", name)
+
+    def test_client(self, body: dict) -> dict:
+        with self.lock:
+            self.store.reload_if_changed()
+            c, _ = self._form_client(body)
+            proxy = self.store.proxy()
+        gc = GenesysClient(c.region, c.client_id, c.client_secret, proxy=proxy, max_retries=1)
+        gc.token()
+        org = gc.get("/api/v2/organizations/me")
+        return {"org": org.get("name", "?"), "region": c.region, "expiresIn": gc.token_expires_in() + 60}
 
     def client(self, name: str) -> GenesysClient | None:
         with self.lock:
@@ -143,9 +205,52 @@ class Handler(BaseHTTPRequestHandler):
         self.do_GET()
 
     def do_POST(self):
-        self._json(405, {"message": "Pyramid only reads (GET)."})
+        u = urllib.parse.urlsplit(self.path)
+        if u.path not in ("/local/clients", "/local/clients/delete", "/local/test", "/local/last"):
+            return self._json(405, {"message": "Pyramid only reads (GET)."})
+        if not self._host_ok():
+            return self._json(403, {"message": "Unexpected Host header"})
+        if not self._authed():
+            return self._json(401, {"message": "Open the address printed by 'pyramid web' (it carries the session key)."})
+        port = self.server.server_address[1]
+        origin = self.headers.get("Origin")
+        if (self.headers.get("X-Pyramid") != "1"
+                or origin not in (None, f"http://127.0.0.1:{port}", f"http://localhost:{port}")
+                or not self.headers.get("Content-Type", "").startswith("application/json")):
+            return self._json(403, {"message": "Refused: not sent by the Pyramid page"})
+        try:
+            size = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            size = -1
+        if not 0 < size <= MAX_BODY:
+            return self._json(400, {"message": "Bad request body"})
+        try:
+            body = json.loads(self.rfile.read(size))
+            if not isinstance(body, dict):
+                raise ValueError
+        except ValueError:
+            return self._json(400, {"message": "Bad request body"})
+        try:
+            if u.path == "/local/clients":
+                return self._json(200, self.server.save_client(body))
+            if u.path == "/local/clients/delete":
+                return self._json(200, self.server.delete_client(str(body.get("name", ""))))
+            if u.path == "/local/last":
+                self.server.set_last(str(body.get("name", "")))
+                return self._json(200, {"ok": True})
+            return self._json(200, self.server.test_client(body))
+        except ValueError as e:
+            return self._json(400, {"message": str(e)})
+        except ApiError as e:
+            return self._json(e.status if e.status and e.status < 500 else 502,
+                              {"message": e.message, "contextId": e.correlation_id})
+        except OSError as e:  # network trouble, a file that cannot be written
+            return self._json(502, {"message": str(e)})
 
-    do_PUT = do_PATCH = do_DELETE = do_POST
+    def _not_allowed(self):
+        self._json(405, {"message": "Not allowed"})
+
+    do_PUT = do_PATCH = do_DELETE = _not_allowed
 
     def do_GET(self):
         if not self._host_ok():

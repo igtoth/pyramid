@@ -143,7 +143,7 @@ open every report as an end-to-end test.
       <br>
       <sub>The same reports in the browser.</sub>
       <h3>In the browser too</h3>
-      <a href="https://igtoth.github.io/pyramid/">igtoth.github.io/pyramid</a> signs you in with your Genesys Cloud account (OAuth PKCE, no secret) and talks to the API straight from your browser. Or run <code>pyramid web</code> to use the clients saved in the desktop app.
+      <a href="https://igtoth.github.io/pyramid/">igtoth.github.io/pyramid</a> signs you in with your Genesys Cloud account (OAuth PKCE, no secret) and talks to the API straight from your browser. Or run <code>pyramid web</code> to use Client Credentials clients (with secret) in the same page.
     </td>
   </tr>
   <tr>
@@ -225,10 +225,11 @@ Genesys Cloud API definition.
 4. Hand out the client ID. Everyone signs in with their own account and sees only what their own roles allow.
 
 Same tabs as the desktop app (Main, OAuth, Config, Log, Help, About). Add a
-client in the OAuth tab: with a **Client secret** the page asks Genesys for the
-token directly, as the desktop app does (Genesys may refuse this grant from a
-web page; the page then says so); without one, you sign in with your Genesys
-account (PKCE). **Nothing is stored on any server:** the page runs in your
+client in the OAuth tab and sign in with your Genesys account (PKCE). A
+**Client secret** is not offered on this page: Genesys Cloud does not let a
+web page use the Client Credentials grant (its token endpoint sends no CORS
+headers for it), so for a secret use the desktop app or `pyramid web` below.
+**Nothing is stored on any server:** the page runs in your
 browser and talks only to Genesys Cloud; your clients stay in the tab's
 session, or in the browser when you tick *Remember*; *Forget everything*
 clears it all. Prefer to keep everything in your
@@ -236,9 +237,11 @@ network? Serve the same files from your own host (the `web` job in
 [`build.yml`](.github/workflows/build.yml) shows the two folders it takes) and
 register that URL as the redirect URI.
 
-**`pyramid web`** serves the same page on your computer with the Client
-Credentials clients saved in the desktop app: the Pyramid process adds the
-token, so the secret never reaches the browser. More in [`docs/web.md`](docs/web.md).
+**`pyramid web`** serves the same page on your computer, with the full OAuth
+tab of the desktop app: add, edit, test and delete Client Credentials clients
+(name, region, client ID, secret) in the page. They are saved in the same
+`pyramid.cfg` as the desktop app; the Pyramid process gets the token and adds
+it to each request, and a saved secret is never sent back to the browser. More in [`docs/web.md`](docs/web.md).
 
 ## Made to be automated
 
@@ -332,6 +335,8 @@ macOS: right-click › Open the first time. Every release lists the SHA-256 of e
   hosts.
 - **`pyramid web` is local.** It listens on 127.0.0.1 only, needs a random
   session key, checks the `Host` header and forwards only GETs to `/api/v2/`.
+  Saving a client from the page also needs a same-origin JSON request with a
+  custom header, which no other site can send.
 - **Safe spreadsheets.** Exported cells that a spreadsheet would run as a
   formula (`=`, `+`, `-`, `@`) get a leading apostrophe.
 

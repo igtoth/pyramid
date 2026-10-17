@@ -2,8 +2,9 @@
 // About, status bar) in the browser. Two ways in, one page:
 //  - hosted (GitHub Pages): orgs saved in this browser only; sign in with your
 //    Genesys Cloud account (OAuth PKCE); the page calls the API itself.
-//  - local ("pyramid web"): the clients saved in the desktop app; the local
-//    server adds the token, so secrets never reach the browser.
+//  - local ("pyramid web"): Client Credentials clients in pyramid.cfg, edited
+//    here as in the desktop app; the local server gets and adds the token,
+//    and never sends a saved secret back to the page.
 import {
   API_HOSTS, Api, ApiError, Cancelled, cell, fetchReport, flattenObject, loginHost, normalizeCatalog,
   pkceChallenge, pkceVerifier, queueMembers, resolve, rowsOf, tableColumns, toCSV,
@@ -174,12 +175,12 @@ function readOrgs(area) {
 }
 function loadOrgs() {
   const byName = new Map();
-  for (const o of readOrgs("localStorage")) byName.set(o.name, { ...o, remember: true });
-  for (const o of readOrgs("sessionStorage")) byName.set(o.name, { ...o, remember: false });
+  for (const { name, region, clientId } of readOrgs("localStorage")) byName.set(name, { name, region, clientId, remember: true });
+  for (const { name, region, clientId } of readOrgs("sessionStorage")) byName.set(name, { name, region, clientId, remember: false });
   return [...byName.values()].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 }
 function saveOrgs(orgs) {
-  const pick = (list) => list.map(({ name, region, clientId, secret }) => (secret ? { name, region, clientId, secret } : { name, region, clientId }));
+  const pick = (list) => list.map(({ name, region, clientId }) => ({ name, region, clientId }));
   const local = pick(orgs.filter((o) => o.remember)), session = pick(orgs.filter((o) => !o.remember));
   store.set("localStorage", ORGS, local.length ? JSON.stringify(local) : null);
   store.set("sessionStorage", ORGS, session.length ? JSON.stringify(session) : null);
@@ -196,25 +197,41 @@ function forgetEverything() {
 
 const PRIVACY = () => h("div", { class: "privacy" }, h("b", {}, "Nothing is stored on any server. "),
   S.mode === "local"
-    ? "These are the clients saved by the desktop app on this computer; the Pyramid process adds the token, the browser never sees a secret."
-    : "Pyramid has no server: this page runs in your browser and talks only to Genesys Cloud. What you type here (secret included) stays in this browser: this tab only, unless you tick Remember. The token stays in this tab. Sign out or Forget everything (Config tab) clears it all.");
+    ? "Clients are saved in pyramid.cfg on this computer, the same file the desktop app uses. A secret you type goes to the Pyramid process once and is never sent back to the page; the process gets the token and adds it to each request."
+    : "Pyramid has no server: this page runs in your browser and talks only to Genesys Cloud. The clients you add stay in this browser (this tab only, unless you tick Remember) and the token stays in this tab. Sign out or Forget everything (Config tab) clears it all.");
 
-// ── OAuth tab ─────────────────────────────────────────────────────────────
+const HOSTED_SECRET = "Not on this web page: Genesys Cloud blocks the Client secret in browsers";
+
+// "pyramid web": the Pyramid process keeps the clients (pyramid.cfg)
+async function localPost(path, body) {
+  const resp = await fetch(path, { method: "POST", credentials: "same-origin",
+    headers: { "Content-Type": "application/json", "X-Pyramid": "1" }, body: JSON.stringify(body) });
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) throw new Error(data.message || `HTTP ${resp.status}`);
+  return data;
+}
+function localOrgs() {
+  return S.localClients.map((c) => ({ name: c.name, region: c.region, clientId: c.clientId || "", hasSecret: !!c.hasSecret }));
+}
+
+// ── OAuth tab (both modes, as in the desktop app) ─────────────────────────
 function renderOAuth(error) {
   const panel = $("tab-oauth");
-  if (S.mode === "local") return renderOAuthLocal(panel);
-  const orgs = loadOrgs();
-  let current = orgs.find((o) => o.name === S.editing) || (S.editing === "" ? null : orgs[0]) || null;
+  const local = S.mode === "local";
+  const orgs = () => (local ? localOrgs() : loadOrgs());
+  let current = orgs().find((o) => o.name === S.editing) || (S.editing === "" ? null : orgs()[0]) || null;
 
   const name = h("input", { id: "f-name", placeholder: "e.g. Prod, Lab, Customer X", autocomplete: "off", maxlength: "60" });
   const sel = h("select", { id: "f-region" }, Object.keys(API_HOSTS).map((r) => h("option", { value: r }, r)));
   const cid = h("input", { id: "f-client", placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", autocomplete: "off", spellcheck: "false" });
-  const secret = h("input", { id: "f-secret", type: "password", placeholder: "empty: sign in with your Genesys account instead", autocomplete: "off", spellcheck: "false" });
-  const show = h("input", { id: "f-show", type: "checkbox", onchange: () => { secret.type = show.checked ? "text" : "password"; } });
+  const secret = h("input", { id: "f-secret", type: "password", autocomplete: "new-password", spellcheck: "false",
+    disabled: !local, placeholder: local ? "" : HOSTED_SECRET });
+  const show = h("input", { id: "f-show", type: "checkbox", disabled: !local, onchange: () => { secret.type = show.checked ? "text" : "password"; } });
   const remember = h("input", { id: "f-remember", type: "checkbox" });
   const formError = h("div", { class: "error", hidden: !error, role: "alert" }, error || "");
   const list = h("div", { class: "clientlist", role: "listbox", "aria-label": "Saved clients" });
   const del = h("button", { class: "danger", type: "button" }, "Delete");
+  const fail = (msg) => { formError.textContent = msg; formError.hidden = !msg; if (msg) status(msg, "err"); };
 
   function fill(o) {
     current = o;
@@ -222,55 +239,82 @@ function renderOAuth(error) {
     name.value = o?.name || "";
     sel.value = o?.region || "us_east_1";
     cid.value = o?.clientId || "";
-    secret.value = o?.secret || "";
+    secret.value = "";
+    if (local) secret.placeholder = o?.hasSecret ? "saved (leave empty to keep it)" : "the client's secret";
     remember.checked = !!o?.remember;
     del.disabled = !o;
     for (const b of list.querySelectorAll("[data-name]")) b.classList.toggle("active", b.dataset.name === o?.name);
   }
   function renderList() {
-    const items = loadOrgs().map((o) => h("div", { class: "item", "data-name": o.name, role: "option", tabindex: "0",
+    const items = orgs().map((o) => h("div", { class: "item", "data-name": o.name, role: "option", tabindex: "0",
       onclick: () => fill(o), onkeydown: (e) => { if (e.key === "Enter") fill(o); } },
-    o.name, h("small", {}, `${o.region} · ${o.secret ? "client credentials" : "Genesys sign-in"} · ${o.remember ? "remembered" : "this tab only"}`)));
+    o.name, h("small", {}, local ? `${o.region} · pyramid.cfg` : `${o.region} · ${o.remember ? "remembered" : "this tab only"}`)));
     list.replaceChildren(...(items.length ? items : [h("p", { class: "note" }, "No saved clients yet.")]));
   }
   function formOrg() {
-    const o = { name: name.value.trim(), region: sel.value, clientId: cid.value.trim(), secret: secret.value.trim(), remember: remember.checked };
+    const o = { name: name.value.trim(), region: sel.value, clientId: cid.value.trim(), remember: remember.checked };
+    if (local) Object.assign(o, { secret: secret.value.trim(), oldName: current?.name || "" });
     const problem = !o.name ? "Give the client a name (any label you like)."
       : !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(o.clientId)
-        ? "The Client ID should look like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx." : "";
-    formError.textContent = problem;
-    formError.hidden = !problem;
+        ? "The Client ID should look like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx."
+        : local && !o.secret && !(current?.hasSecret && current.clientId === o.clientId) ? "Type the Client secret." : "";
+    fail(problem);
     return problem ? null : o;
   }
-  function save(o) {
-    const all = loadOrgs().filter((x) => x.name !== o.name && x.name !== current?.name);
-    all.push(o);
-    saveOrgs(all);
+  async function save(o) {
+    if (local) {
+      const info = await localPost("local/clients", o);
+      S.localClients = info.clients || [];
+    } else {
+      const all = loadOrgs().filter((x) => x.name !== o.name && x.name !== current?.name);
+      all.push({ name: o.name, region: o.region, clientId: o.clientId, remember: o.remember });
+      saveOrgs(all);
+    }
     S.editing = o.name;
+    renderList();
+    fill(orgs().find((x) => x.name === o.name) || null);
   }
-  const signin = h("button", { class: "accent", type: "button", onclick: () => { const o = formOrg(); if (o) { save(o); useOrg(o); } } }, "Save and use");
-  const test = h("button", { type: "button", onclick: async () => {
-    const o = formOrg();
-    if (!o) return;
-    if (!o.secret) { status("Without a secret the connection is tested by signing in: Save and use", "warn"); return; }
+  const guarded = (fn) => async () => { const o = formOrg(); if (!o) return; try { await fn(o); } catch (e) { fail(e.message); } };
+  const signin = h("button", { class: "accent", type: "button", onclick: guarded(async (o) => {
+    await save(o);
+    if (local) { localPost("local/last", { name: o.name }).catch(() => {}); connectLocal(o.name); } else await startPkce(o);
+  }) }, "Save and use");
+  const test = h("button", { type: "button", onclick: guarded(async (o) => {
+    if (!local) { status("On this page the connection is tested by signing in: Save and use", "warn"); return; }
+    status("Testing connection...", "busy");
+    const r = await localPost("local/test", o);
+    const msg = `Connected to ${r.org} (${r.region}). Token valid for ${Math.floor(r.expiresIn / 3600)}h ${Math.floor((r.expiresIn % 3600) / 60)}m.`;
+    fail("");
+    status("✓  " + msg, "ok");
+    dialog("Connection OK", h("p", {}, msg));
+  }) }, "Test connection");
+  const keep = h("button", { type: "button", onclick: guarded(async (o) => { await save(o); status(`✓  Client ${o.name} saved`, "ok"); }) }, "Save");
+  del.onclick = async () => {
+    if (!current || !confirm(`Delete the saved client "${current.name}"${local ? " from pyramid.cfg" : " from this browser"}?`)) return;
     try {
-      const t = await clientCredentials(o);
-      const me = await fetch(`${apiHost(o.region)}/api/v2/organizations/me`, { headers: { Authorization: `Bearer ${t.access_token}` } }).then((r) => r.json());
-      const msg = `Connected to ${me.name || "?"} (${o.region}). Token valid for ${Math.floor(t.expires_in / 3600)}h ${Math.floor((t.expires_in % 3600) / 60)}m.`;
-      status("✓  " + msg, "ok");
-      dialog("Connection OK", h("p", {}, msg));
-    } catch (e) { formError.textContent = e.message; formError.hidden = false; status(e.message, "err"); }
-  } }, "Test connection");
-  const keep = h("button", { type: "button", onclick: () => { const o = formOrg(); if (o) { save(o); renderList(); fill(o); status(`✓  Client ${o.name} saved`, "ok"); } } }, "Save");
-  del.onclick = () => {
-    if (!current || !confirm(`Delete the saved client "${current.name}" from this browser?`)) return;
-    saveOrgs(loadOrgs().filter((x) => x.name !== current.name));
+      if (local) S.localClients = (await localPost("local/clients/delete", { name: current.name })).clients || [];
+      else saveOrgs(loadOrgs().filter((x) => x.name !== current.name));
+    } catch (e) { return fail(e.message); }
     status(`Client ${current.name} deleted`, "ok");
     renderList();
-    fill(loadOrgs()[0] || null);
+    fill(orgs()[0] || null);
   };
   for (const el of [name, cid, secret]) el.addEventListener("keydown", (e) => { if (e.key === "Enter") signin.click(); });
   const redirect = h("input", { value: redirectUri(), readonly: true });
+
+  const note = local
+    ? h("p", { class: "note" }, "Client Credentials clients, as in the desktop app: what Pyramid can read comes from the role given to the client.")
+    : h("p", { class: "note" }, "On this page you sign in on the Genesys login page with your own account (PKCE client) and see only what your roles allow. A Client secret only works in the desktop app or in ",
+      h("code", {}, "pyramid web"), " (same page, run on your computer): Genesys Cloud does not let a web page use it.");
+  const steps = local
+    ? [h("li", {}, "Admin › Integrations › OAuth › Add client."),
+      h("li", {}, "Grant type: Client Credentials; give it a role that can read what you want to export."),
+      h("li", {}, "Save, and copy the Client ID and the Client secret here.")]
+    : [h("li", {}, "Admin › Integrations › OAuth › Add client."),
+      h("li", {}, "Grant type: Code Authorization with PKCE."),
+      h("li", {}, "Authorized redirect URI:", h("div", { class: "copy-field" }, redirect,
+        h("button", { type: "button", class: "small", onclick: () => navigator.clipboard?.writeText(redirect.value).then(() => status("Redirect URI copied", "ok")) }, "Copy"))),
+      h("li", {}, "Save, and share the Client ID with the people who should run reports.")];
 
   panel.replaceChildren(h("div", { class: "oauth" },
     h("div", { class: "pane clients" },
@@ -284,88 +328,21 @@ function renderOAuth(error) {
       h("div", { class: "form-row" }, h("label", { for: "f-region" }, "Region"), sel),
       h("div", { class: "form-row" }, h("label", { for: "f-client" }, "Client ID"), cid),
       h("div", { class: "form-row" }, h("label", { for: "f-secret" }, "Client secret"), secret),
-      h("div", { class: "form-row" }, h("span", {}), h("label", { class: "check" }, show, " Show secret")),
-      h("div", { class: "form-row" }, h("span", {}),
+      h("div", { class: "form-row" }, h("span", {}), h("label", { class: "check" + (local ? "" : " muted") }, show, " Show secret")),
+      local ? null : h("div", { class: "form-row" }, h("span", {}),
         h("label", { class: "check" }, remember, " Remember on this browser ", h("small", {}, "(otherwise only until this tab closes)"))),
       formError,
       h("div", { class: "form-actions" }, signin, test, keep,
-        S.connected ? h("button", { type: "button", class: "ghost", onclick: signOut }, "Sign out") : null),
-      h("p", { class: "note" }, "With a Client secret (Client Credentials grant), Pyramid gets the token straight from Genesys, as the desktop app does. Genesys may refuse that from a web page; if it does, the message says so, and the desktop app or ", h("code", {}, "pyramid web"), " work with the same client. Without a secret, you sign in on the Genesys login page with your own account (PKCE client) and see only what your roles allow."),
+        S.connected ? h("button", { type: "button", class: "ghost", onclick: signOut }, local ? "Disconnect" : "Sign out") : null),
+      note,
       h("details", { class: "admin" },
         h("summary", {}, "First time? An admin creates the OAuth client once"),
-        h("ol", { class: "steps" },
-          h("li", {}, "Admin › Integrations › OAuth › Add client."),
-          h("li", {}, "Grant type: Client Credentials (with a role that can read), or Code Authorization with PKCE for signing in with your own account."),
-          h("li", {}, "For PKCE, authorized redirect URI:", h("div", { class: "copy-field" }, redirect,
-            h("button", { type: "button", class: "small", onclick: () => navigator.clipboard?.writeText(redirect.value).then(() => status("Redirect URI copied", "ok")) }, "Copy"))),
-          h("li", {}, "Save, and share the Client ID with the people who should run reports."))))));
+        h("ol", { class: "steps" }, ...steps)))));
   renderList();
   fill(current);
 }
 
-function renderOAuthLocal(panel) {
-  let current = S.localClients.find((c) => c.name === S.editing) || S.localClients[0] || null;
-  const list = h("div", { class: "clientlist", role: "listbox", "aria-label": "Saved clients" });
-  const detail = h("div", {});
-  function fill(c) {
-    current = c;
-    S.editing = c?.name || null;
-    for (const b of list.querySelectorAll("[data-name]")) b.classList.toggle("active", b.dataset.name === c?.name);
-    detail.replaceChildren(
-      h("div", { class: "form-row" }, h("label", {}, "Name"), h("input", { value: c?.name || "", readonly: true })),
-      h("div", { class: "form-row" }, h("label", {}, "Region"), h("input", { value: c?.region || "", readonly: true })),
-      h("div", { class: "form-row" }, h("label", {}, "Client secret"), h("input", { value: "kept by the Pyramid process", readonly: true, class: "muted" })),
-      h("div", { class: "form-actions" },
-        h("button", { class: "accent", type: "button", disabled: !c, onclick: () => connectLocal(c.name) }, "Use this client"),
-        S.connected ? h("button", { type: "button", class: "ghost", onclick: signOut }, "Disconnect") : null));
-  }
-  list.replaceChildren(...(S.localClients.length
-    ? S.localClients.map((c) => h("div", { class: "item", "data-name": c.name, role: "option", tabindex: "0", onclick: () => fill(c) },
-      c.name, h("small", {}, c.region)))
-    : [h("p", { class: "note" }, "No saved clients yet: add one in the desktop app (OAuth tab), then reload this page.")]));
-  panel.replaceChildren(h("div", { class: "oauth" },
-    h("div", { class: "pane clients" }, h("h3", {}, "Saved clients"), list),
-    h("div", { class: "pane details" }, h("h3", {}, "Client details"), PRIVACY(), detail,
-      h("p", { class: "note" }, "Add, edit or delete clients in the desktop app; this page reads the same pyramid.cfg."))));
-  fill(current);
-}
-
 // ── sign-in ───────────────────────────────────────────────────────────────
-function useOrg(o) { return o.secret ? signInWithSecret(o) : startPkce(o); }
-
-// Client Credentials from the page, as the desktop app does. Genesys may block
-// it (no CORS on /oauth/token for this grant): then say so plainly.
-async function clientCredentials(o) {
-  let resp;
-  try {
-    resp = await fetch(`${loginBase(o.region)}/oauth/token`, {
-      method: "POST",
-      headers: { Authorization: "Basic " + btoa(`${o.clientId}:${o.secret}`), "Content-Type": "application/x-www-form-urlencoded" },
-      body: "grant_type=client_credentials",
-    });
-  } catch {
-    throw new Error("Genesys Cloud did not let this web page use the Client secret (the browser blocked the answer of the token endpoint). Use the desktop app or pyramid web with this client, or leave the secret empty to sign in with your Genesys account.");
-  }
-  const body = await resp.json().catch(() => ({}));
-  if (!resp.ok || !body.access_token) throw new Error(`Sign-in failed: ${body.error_description || body.error || `HTTP ${resp.status}`}. Check the region, Client ID and secret.`);
-  return body;
-}
-
-async function signInWithSecret(o) {
-  status(`Signing in to ${o.name}...`, "busy");
-  try {
-    const t = await clientCredentials(o);
-    store.set("sessionStorage", "token", JSON.stringify({ accessToken: t.access_token, region: o.region, name: o.name,
-      expiresAt: Date.now() + (t.expires_in || 3600) * 1000 }));
-    showTab("main");
-    connectHosted(o.region, o.name);
-  } catch (e) {
-    status(e.message, "err");
-    showTab("oauth");
-    renderOAuth(e.message);
-  }
-}
-
 async function startPkce(org) {
   const verifier = pkceVerifier(64);
   const state = pkceVerifier(16);
@@ -410,16 +387,6 @@ function connectHosted(region, name = "") {
   S.api = new Api({
     base: apiHost(region),
     headers: () => ({ Authorization: "Bearer " + (token()?.accessToken || "") }),
-    fetchFn: async (url, opts) => {  // a Client Credentials token is renewed with the saved secret
-      const org = loadOrgs().find((o) => o.name === S.clientName);
-      if (!token() && org?.secret) {
-        const t = await clientCredentials(org);
-        store.set("sessionStorage", "token", JSON.stringify({ accessToken: t.access_token, region: org.region, name: org.name,
-          expiresAt: Date.now() + (t.expires_in || 3600) * 1000 }));
-        opts = { ...opts, headers: { ...opts.headers, Authorization: "Bearer " + t.access_token } };
-      }
-      return fetch(url, opts);
-    },
     onProgress: (t) => status(t, "busy"),
     onUnauthorized: () => store.set("sessionStorage", "token", null),
   });

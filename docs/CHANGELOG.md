@@ -10,8 +10,11 @@ version and a command line.
   desktop OAuth tab (kept in the tab's session, or in the browser when
   remembered; nothing on any server), sign in with your Genesys Cloud
   account (OAuth PKCE, no secret), same reports, same exports.
-- **`pyramid web`**: the web page on your computer with the clients saved in
-  the desktop app; the secret stays in the Pyramid process.
+- **`pyramid web`**: the web page on your computer with the desktop app's
+  OAuth tab (add, edit, test, delete clients with their secret, saved in the
+  same `pyramid.cfg`); the Pyramid process gets the token, and a saved secret
+  is never sent back to the page. The hosted page does not offer the secret:
+  Genesys Cloud blocks the Client Credentials grant in browsers (no CORS).
 - **Command line**: `pyramid export <reports...> | all`, CSV and/or JSON,
   with a saved client or `GC_*` environment variables; `pyramid list`,
   `pyramid clients`.

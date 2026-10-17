@@ -19,8 +19,8 @@ Cloud; its Content Security Policy blocks every other host.
 | Where | What |
 |---|---|
 | `pyramid.cfg` in your user profile (desktop app, command line, `pyramid web`) | saved OAuth clients (name, region, client ID, **secret in plain text**), proxy, theme, last client used. Readable only by you on macOS and Linux. |
-| the browser tab's `sessionStorage` (web version) | the clients you added (name, region, client ID, and the secret if you typed one) and the access token, until the tab closes |
-| the browser's `localStorage` (web version) | only the clients you ticked "Remember on this browser" for (secret included), and the theme; "Forget everything on this browser" removes them |
+| the browser tab's `sessionStorage` (hosted web page) | the clients you added (name, region, client ID) and the access token, until the tab closes |
+| the browser's `localStorage` (hosted web page) | only the clients you ticked "Remember on this browser" for, and the theme; "Forget everything on this browser" removes them |
 | memory, while Pyramid runs | the reports you opened |
 | files you export | exactly what you exported |
 
@@ -32,6 +32,8 @@ Handling the files you export is up to you, under the law that applies to you
 
 OAuth client secrets and recording API keys returned by Genesys Cloud are
 removed from every report and export. The client secret you save is sent only
-to `login.<region>` to get a token. `pyramid web` never hands it to the browser.
+to `login.<region>` to get a token. The hosted web page never asks for a secret. `pyramid web` takes one when you
+type it in its OAuth tab, saves it in `pyramid.cfg` and never sends it back to
+the browser.
 
 Questions: toth@ighor.com

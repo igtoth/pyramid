@@ -4,7 +4,7 @@ Genesys Cloud, in both modes; also captures the README pictures.
     pip install playwright && playwright install chromium
     python scripts/web_check.py docs/images
 
-1. local: 'pyramid web' with a saved client (the proxy adds the token)
+1. local: 'pyramid web', clients added from the page (the proxy adds the token)
 2. hosted: the static site (as GitHub Pages serves it) with PKCE sign-in
 """
 
@@ -92,8 +92,33 @@ with sync_playwright() as p:
     expect(page.locator(".banner.warn")).to_contain_text("No client selected")
     expect(page.locator("#client-label")).to_have_text("No client selected")
     page.locator("[data-tab=oauth]").click()
+    # add a client with its secret from the page (saved in pyramid.cfg, like the desktop)
+    page.get_by_role("button", name="New").click()
+    page.fill("#f-name", "Lumen lab")
+    page.select_option("#f-region", "eu_west_1")
+    page.fill("#f-client", fg.CLIENT_ID)
+    page.fill("#f-secret", "wrong-secret")
+    before = len(errors)
+    page.get_by_role("button", name="Test connection").click()
+    expect(page.locator("[role=alert]")).not_to_be_hidden()
+    errors[before:] = [e for e in errors[before:] if "status of 40" not in e]  # the wrong secret, on purpose
+    page.fill("#f-secret", fg.CLIENT_SECRET)
+    page.check("#f-show")
+    assert page.get_attribute("#f-secret", "type") == "text"
+    page.get_by_role("button", name="Test connection").click()
+    expect(page.locator("#dialog")).to_contain_text("Connected to Lumen Harbor Telecom")
+    page.keyboard.press("Escape")
+    page.get_by_role("button", name="Save", exact=True).click()
+    expect(page.locator(".clientlist .item")).to_have_count(2)
+    assert Store().client("Lumen lab").client_secret == fg.CLIENT_SECRET
+    assert fg.CLIENT_SECRET not in page.content()  # the form is cleared, the secret is not sent back
+    page.locator(".clientlist .item", has_text="Lumen lab").click()
+    page.once("dialog", lambda d: d.accept())
+    page.get_by_role("button", name="Delete").click()
+    expect(page.locator(".clientlist .item")).to_have_count(1)
+    assert Store().client("Lumen lab") is None
     page.locator(".clientlist .item", has_text="Lumen Harbor (prod)").click()
-    page.get_by_role("button", name="Use this client").click()
+    page.get_by_role("button", name="Save and use").click()
     expect(page.locator("#client-label")).to_contain_text("Lumen Harbor Telecom")
     expect(page.locator("[data-tab=main]")).to_have_class("active")
     page.screenshot(path=str(OUT / "pyramid-web-home.jpg"), quality=88)
@@ -189,36 +214,12 @@ with sync_playwright() as p:
     page.locator("[data-tab=config]").click()
     page.get_by_role("button", name="Forget everything on this browser").click()
     assert page.evaluate("Object.keys(localStorage).concat(Object.keys(sessionStorage)).filter(k => k.startsWith('pyramid.'))") == []
-    # a client with a secret (Client Credentials), as in the desktop app
-    page.goto(site_url + f"?api={fake_url}")  # Forget everything also dropped the test override
+    # the Client secret is not offered on the hosted page (Genesys blocks it in browsers)
+    page.goto(site_url + f"?api={fake_url}")
     page.locator("[data-tab=oauth]").click()
-    page.get_by_role("button", name="New").click()
-    page.fill("#f-name", "Lumen API")
-    page.fill("#f-client", fg.CLIENT_ID)
-    page.fill("#f-secret", fg.CLIENT_SECRET)
-    assert page.get_attribute("#f-secret", "type") == "password"
-    page.check("#f-show")
-    assert page.get_attribute("#f-secret", "type") == "text"
-    page.get_by_role("button", name="Test connection").click()
-    expect(page.locator("#dialog")).to_contain_text("Connected to Lumen Harbor Telecom")
-    page.keyboard.press("Escape")
-    page.get_by_role("button", name="Save and use").click()
-    expect(page.locator("#client-label")).to_contain_text("Lumen API", timeout=15000)
-    open_report(page, "Trunks")
-    assert fg.CLIENT_SECRET in page.evaluate("sessionStorage.getItem('pyramid.orgs')")
-    remembered = page.evaluate("localStorage.getItem('pyramid.orgs')") or ""
-    assert fg.CLIENT_SECRET not in remembered  # not ticked: the secret is not kept beyond the tab
-    # when Genesys refuses the secret from a web page (no CORS), the page says so
-    srv.handler.cors_client_credentials = False
-    before = len(errors)
-    page.locator("[data-tab=oauth]").click()
-    page.get_by_role("button", name="Sign out").click()
-    page.locator(".clientlist .item", has_text="Lumen API").click()
-    page.get_by_role("button", name="Save and use").click()
-    expect(page.locator("[role=alert]")).to_contain_text("did not let this web page use the Client secret")
-    srv.handler.cors_client_credentials = True
-    errors[before:] = [e for e in errors[before:] if "CORS policy" not in e and "ERR_FAILED" not in e]  # provoked on purpose
-    print("hosted mode: saved orgs, PKCE sign-in, client credentials and reports OK", flush=True)
+    assert page.is_disabled("#f-secret") and page.is_disabled("#f-show")
+    expect(page.locator(".pane.details")).to_contain_text("pyramid web")
+    print("hosted mode: saved orgs, PKCE sign-in and reports OK", flush=True)
     ss.shutdown()
     browser.close()
 

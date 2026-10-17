@@ -109,3 +109,59 @@ def test_concurrent_requests_see_the_clients(local):
     with concurrent.futures.ThreadPoolExecutor(16) as pool:
         codes = list(pool.map(lambda _: req(local, "/local/info")[0], range(200)))
     assert set(codes) == {200}
+
+
+def post(srv, path, body, headers=None, cookie=True):
+    import json
+    port = srv.server_address[1]
+    c = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+    h = {"Host": f"127.0.0.1:{port}", "Content-Type": "application/json", "X-Pyramid": "1",
+         "Origin": f"http://127.0.0.1:{port}"}
+    if cookie:
+        h["Cookie"] = f"{srv.cookie}={srv.key}"
+    h.update(headers or {})
+    h = {k: v for k, v in h.items() if v is not None}
+    c.request("POST", path, body=json.dumps(body), headers=h)
+    r = c.getresponse()
+    return r.status, json.loads(r.read() or b"{}")
+
+
+NEW = {"name": "Lab", "region": "eu_west_1", "clientId": fg.CLIENT_ID, "secret": fg.CLIENT_SECRET}
+
+
+def test_page_adds_edits_and_deletes_clients(local):
+    status, info = post(local, "/local/clients", NEW)
+    assert status == 200 and [c["name"] for c in info["clients"]] == ["Lab", "Lumen Harbor"]
+    assert fg.CLIENT_SECRET not in str(info)  # never sent back
+    assert all(c["hasSecret"] for c in info["clients"])
+    assert Store().client("Lab").client_secret == fg.CLIENT_SECRET  # same pyramid.cfg as the desktop
+    # rename with an empty secret keeps the saved one
+    status, info = post(local, "/local/clients", {**NEW, "name": "Lab 2", "secret": "", "oldName": "Lab"})
+    assert status == 200 and Store().client("Lab 2").client_secret == fg.CLIENT_SECRET and not Store().client("Lab")
+    # a new name cannot take an existing one
+    assert post(local, "/local/clients", {**NEW, "name": "Lumen Harbor"})[0] == 400
+    status, info = post(local, "/local/clients/delete", {"name": "Lab 2"})
+    assert status == 200 and [c["name"] for c in info["clients"]] == ["Lumen Harbor"]
+
+
+def test_client_form_is_checked(local):
+    assert post(local, "/local/clients", {**NEW, "clientId": "nope"})[0] == 400
+    assert post(local, "/local/clients", {**NEW, "region": "mars_1"})[0] == 400
+    assert post(local, "/local/clients", {**NEW, "name": "a[b]"})[0] == 400
+    assert post(local, "/local/clients", {**NEW, "secret": ""})[0] == 400  # new client, no secret
+
+
+def test_test_connection(local):
+    status, body = post(local, "/local/test", NEW)
+    assert status == 200 and body["org"] == "Lumen Harbor Telecom" and body["expiresIn"] > 0
+    status, body = post(local, "/local/test", {**NEW, "secret": "wrong"})
+    assert status in (400, 401) and body["message"]
+
+
+def test_post_needs_session_header_and_origin(local):
+    assert post(local, "/local/clients", NEW, cookie=False)[0] == 401
+    assert post(local, "/local/clients", NEW, headers={"X-Pyramid": None})[0] == 403
+    assert post(local, "/local/clients", NEW, headers={"Origin": "https://evil.example"})[0] == 403
+    assert post(local, "/local/clients", NEW, headers={"Content-Type": "text/plain"})[0] == 403
+    assert post(local, "/local/elsewhere", NEW)[0] == 405
+    assert not Store().client("Lab")
