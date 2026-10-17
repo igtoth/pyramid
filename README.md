@@ -34,7 +34,7 @@
 <p align="center">
   <img src="docs/images/pyramid-users-queues.jpg" alt="Pyramid with the All Users + Queues report open: 64 users of a made-up org, each with division, state, every queue they belong to and their skills, sorted by name" width="100%">
   <br>
-  <sub>All Users + Queues: one row per user with every queue and skill, the export Genesys Cloud has no button for.</sub>
+  <sub>All Users + Queues: one row per user with every queue and skill.</sub>
 </p>
 
 <p align="center">
@@ -56,7 +56,7 @@
       53 reports in 12 sections. Each opens in its own tab, with search, sorting and export, and stays in memory until you refresh it.
     </td>
     <td width="25%" valign="top">
-      <h3>The joins Genesys leaves to you</h3>
+      <h3>Joined views of the org</h3>
       Users with all their queues, users with all their roles, metrics of every performance profile: answers the API spreads over thousands of calls, in one table.
     </td>
     <td width="25%" valign="top">
@@ -74,23 +74,23 @@
 
 ## Why Pyramid
 
-Genesys Cloud has no export for most of its configuration. The admin pages
-show one object at a time, and the People page only imports users from a
-CSV; it does not export them. Questions like *"which queues is every agent
-in?"* or *"who holds which role?"* (a quarterly access review) have been
-asked in the Genesys community for years, and the answer is always the same:
-use the API, the CLI, or write a script.
+Pyramid is for configuration data that is hard to get out of Genesys Cloud
+as one table. As of October 2026, most admin pages show one object at a time,
+and the People page imports users from a CSV but has no matching export.
+Community questions such as *"which queues is every agent in?"* or *"who holds
+which role?"* are usually answered with the Platform API, the Genesys Cloud CLI
+or a custom script. Pyramid turns those API calls into one-click reports.
 
 | What you need | Genesys Cloud admin pages | `gc` CLI | CX as Code (Terraform export) | **Pyramid** |
 |---|---|---|---|---|
-| Every user, active and inactive, in a spreadsheet | no export | JSON, convert it yourself | HCL / JSON resources | **one click, CSV** |
-| Users with all their queues and skills | no | one call per user, plus a script | spread over user and queue resources | **one table** |
-| Users with all their roles (access review) | no | one call per user, plus a script | separate role resources | **one table** |
+| Every user, active and inactive, in a spreadsheet | not built in | JSON, convert it yourself | HCL / JSON resources | **one click, CSV** |
+| Users with all their queues and skills | not built in | one call per user, plus a script | spread over user and queue resources | **one table** |
+| Users with all their roles (access review) | not built in | one call per user, plus a script | separate role resources | **one table** |
 | IVRs, schedules, trunks, flows, OAuth clients, campaigns... as tables | page by page | JSON per object type | HCL, meant for re-applying | **53 reports, CSV or JSON** |
 | No code, no Terraform | yes | no | no | **yes** |
 | Several orgs side by side | one org per login | profiles | one config per org | **saved clients, switch in a click** |
 | Nothing to install | yes | no | no | **yes: the web version** |
-| Scheduled snapshots of the whole org | no | scripts | yes | **`pyramid export all`** |
+| Scheduled snapshots of the whole org | not built in | scripts | yes | **`pyramid export all`** |
 
 When to use something else: CX as Code is the tool to **re-create or
 migrate** configuration (Pyramid never writes), and the analytics views export
@@ -98,12 +98,13 @@ migrate** configuration (Pyramid never writes), and the analytics views export
 reading an org quickly: audits, documentation before a change, comparing
 before and after a migration, onboarding to an org you do not know yet.
 
-<sub>Sources, all from the Genesys community and Resource Center:
+<sub>Based on public Genesys documentation and community posts as of October 2026. Genesys Cloud changes often; corrections are welcome (open an issue).
+Sources:
 <a href="https://help.genesys.cloud/articles/add-people-csv-file-import/">Bulk upload of people data</a> (import only) ·
-<a href="https://community.genesys.com/viewdocument/user-management-users-people-admin-page-update?CommunityKey=f4bf88cc-0f42-4b62-a248-018993248afa&tab=librarydocuments">People admin page update, 2026</a> (no export; a June 2026 comment says exporting users and roles is "still not available") ·
-<a href="https://community.genesys.com/discussion/export-feature-of-user-and-assigned-roleprivilege-configuration-data">export of users and roles</a> ·
+<a href="https://community.genesys.com/viewdocument/user-management-users-people-admin-page-update?CommunityKey=f4bf88cc-0f42-4b62-a248-018993248afa&tab=librarydocuments">People admin page update, 2026</a> ·
+<a href="https://community.genesys.com/discussion/export-feature-of-user-and-assigned-roleprivilege-configuration-data">exporting users and roles</a> ·
 <a href="https://community.genesys.com/discussion/export-list-of-divisions-agents-by-division-and-queues-assigned-to-each-agent">agents with divisions and queues</a> ·
-<a href="https://community.genesys.com/discussion/backing-up-of-system">CX as Code export "is not a guaranteed backup and recovery solution"</a> ·
+<a href="https://community.genesys.com/discussion/backing-up-of-system">CX as Code export and backups</a> ·
 <a href="https://help.genesys.cloud/articles/export-view-data/">Export view data</a> (performance views).</sub>
 
 ## Features
